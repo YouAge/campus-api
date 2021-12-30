@@ -1,0 +1,33 @@
+{
+  "name": "campus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon ./app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ajv": "^8.8.2",
+    "ajv-errors": "^3.0.0",
+    "ajv-formats": "^2.1.1",
+    "ajv-i18n": "^4.2.0",
+    "bcryptjs": "^2.4.3",
+    "fs-extra": "^10.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "koa": "^2.13.4",
+    "koa-body": "^4.2.0",
+    "koa-router": "^10.1.1",
+    "koa-static": "^5.0.0",
+    "koa2-cors": "^2.0.6",
+    "moment": "^2.29.1",
+    "mysql2": "^2.3.3",
+    "nodemon": "^2.0.15",
+    "path-exists": "^4.0.0",
+    "pg": "^8.7.1",
+    "sequelize": "^7.0.0-alpha.2",
+    "uuid": "^8.3.2"
+  }
+}
