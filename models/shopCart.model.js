@@ -1,3 +1,4 @@
+const {GoodsSkuModel} = require("./goods_sku.model.js");
 const {GoodsModel} = require("./goods.model.js");
 const {Sequelize} = require("sequelize");
 const {Model} = require("sequelize");
@@ -7,21 +8,27 @@ class ShopCartModel extends  Model{}
 ShopCartModel.init({
   id: {
     type: Sequelize.INTEGER,
-    primaryKey:true,  // 主键
-    autoIncrement:true, // 自增长
+    primaryKey: true,  // 主键
+    autoIncrement: true, // 自增长
   },
-  goodsId:{
+  goodsId: {
     type: Sequelize.INTEGER,
     allowNull: true,
-    field:'goods_id',
+    field: 'goods_id',
     comment: "商品id"
   },
-  userId:{
+  skuId: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+    field: 'sku_id',
+    comment: "skuid"
+  },
+  userId: {
     type: Sequelize.INTEGER,
     allowNull: false,
-    field:'user_id'
+    field: 'user_id'
   },
-  shopNumber:{
+  shopNumber: {
     type: Sequelize.INTEGER,
     allowNull: true,
     defaultValue: 0,
@@ -32,12 +39,16 @@ ShopCartModel.init({
   tableName: 'shop-cart'
 })
 
-ShopCartModel.belongsTo(GoodsModel,{
-  foreignKey:'goodsId',
+ShopCartModel.belongsTo(GoodsModel, {
+  foreignKey: 'goodsId',
   targetKey: 'id',
   constraints: false
 })
-
+ShopCartModel.belongsTo(GoodsSkuModel, {
+  foreignKey: 'skuId',
+  targetKey: 'id',
+  constraints: false
+})
 
 
 module.exports ={

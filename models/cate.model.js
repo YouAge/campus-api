@@ -51,8 +51,9 @@ CateModel.init( {
   sequelize,
   tableName: 'categories',
 })
-CateModel.hasMany(CateModel,{ constraints: false,foreignKey:'superId',through:null,as:'children',})
-
-module.exports={
+CateModel.hasMany(CateModel, {constraints: false, foreignKey: 'superId', through: null, as: 'children',})
+CateModel.belongsTo(CateModel,
+  {constraints: false, foreignKey: 'id', targetKey: 'superId', through: null, as: 'value'})
+module.exports = {
   CateModel
 }

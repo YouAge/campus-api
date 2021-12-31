@@ -1,9 +1,12 @@
 
 const Router = require('koa-router')
 const jwt = require('jsonwebtoken')
-const {shopUserGetInfoController,
+const {addCartShopController} = require("../controller/cartShop.controller.js");
+const {
+  shopUserGetInfoController,
   shopUserRegisterController,
-  shopUserLoginController} = require("../controller/user.controller.js");
+  shopUserLoginController
+} = require("../controller/user.controller.js");
 const {shopSecret} = require("../../config");
 const {backMsg401} = require("../../utils/backMsg.js");
 const {shopHeadGetController,shopGoodsDetailsController,
@@ -11,18 +14,20 @@ const {shopHeadGetController,shopGoodsDetailsController,
 const router = new Router({ prefix: '/api' })
 
 // 需要登入路由
-const authPath = new Set([])
+const authPath = new Set(['/add-cart'])
 router.use(async (ctx,next)=>{
   const path = ctx.request.path
-  if(authPath.has(path)){
+  if (authPath.has(path.replace(/^\/api/, ''))) {
     const token = ctx.request.headers.AuthToken || ''
     try {
-      jwt.verify(token, shopSecret)
+      const data = jwt.verify(token, shopSecret)
+      // 挂在登入的用户id
+      ctx.state.userId = data.userId
       await next()
-    }catch (e) {
+    } catch (e) {
       ctx.body = backMsg401({})
     }
-  }else {
+  } else {
    await next() // 一定要加 await
   }
 })
@@ -46,14 +51,17 @@ router.get('/slideshow',shopSlideshowGetController)
 router.get('/goods-details',shopGoodsDetailsController)
 
 
-
 // 用户登入
-router.post('/login-shop',shopUserLoginController)
-router.post('/register-shop',shopUserRegisterController)
-router.get('/get-user-info',shopUserGetInfoController)
+router.post('/login-shop', shopUserLoginController)
+router.post('/register-shop', shopUserRegisterController)
+router.get('/get-user-info', shopUserGetInfoController)
 // 获取用户购物地址
 
+
 // 获取购物车
+
+// 加入购物车
+router.post('/add-cart', addCartShopController)
 
 
 // 获取购商品

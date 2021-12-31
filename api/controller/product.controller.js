@@ -4,6 +4,8 @@
  */
 
 
+const {GoodsTagModel} = require("../../models/goods_tag.model.js");
+const {productService} = require("../services/product.service.js");
 const {GoodsSkuModel} = require("../../models/goods_sku.model.js");
 const {GoodsModel} = require("../../models/goods.model.js");
 const {backMsg200} = require("../../utils/backMsg.js");
@@ -11,23 +13,27 @@ const {ajvValid} = require("../../utils/ajv-verify.js");
 
 
 const schema = {
-  type:'object',
+  type: 'object',
   properties: {
-    name: {type: 'string',errorMessage:{
-        type:'必须是字符串或者数字',
-      }},
-    value:{type:'array',errorMessage:{type:'是一个数组包裹'}},
-    status: {type:'boolean',default: false},
-    cateId:{type:'array'},
-    picture:{type:'array',errorMessage:{type:'图片是一个地址'}},
-    desc:{type:'string'}, // 描述
+    name: {
+      type: 'string', errorMessage: {
+        type: '必须是字符串或者数字',
+      }
+    },
+    value: {type: 'array', errorMessage: {type: '是一个数组包裹'}},
+    status: {type: 'boolean', default: false},
+    cateId: {type: 'array'},
+    picture: {type: 'array', errorMessage: {type: '图片是一个地址'}},
+    desc: {type: 'string'}, // 描述
     //商品sku  商品多种属性规格， 价格 图片
-    sku:{type:'array'},
-    specs:{type:'array'},
-    particulars:{type:'string',errorMessage:{type:'说明是一个html string'}},
-
+    skus: {type: 'array'},
+    specs: {type: 'array'},
+    particulars: {type: 'string', errorMessage: {type: '说明是一个html string'}},
+    tags: {type: 'array',},
+    isTypeExplain: {type: "number", default: 1},
+    brandId: {type: 'number'}
   },
-  required:['name','picture','sku',]
+  required: ['name', 'picture', 'skus',]
 }
 
 const demoDate = {
@@ -53,36 +59,64 @@ const demoDate = {
 }
 
 
-async function productPostController(ctx, next){
-  const data = ctx.request.body || ctx.request.params  || {}
-  ajvValid(data,schema)
-
-  // const goodsData = {name:data.name,status: data.status,desc: data.desc,
-  //   crate:data.crate[data.crate.length-1],picture: data.picture,particulars: data.particulars}
-  // await GoodsSkuModel.create(sku)
-  await GoodsModel.create(data,
+async function productPostController(ctx, next) {
+  const data = ctx.request.body || ctx.request.params || {}
+  ajvValid(data, schema)
+  var goods = await GoodsModel.create(data,
     {
-    include:[{
-      model:GoodsSkuModel,
-      as:'skus'
-    }]}
+      include: [{
+        model: GoodsSkuModel,
+        as: 'skus'
+      }]
+    }
   )
-  ctx.body = backMsg200({msg:'添加商品成功'})
-}
-
-async function productGetController(ctx,next){
-  const t = await GoodsModel.findAll({
-     include:{
-       model:GoodsSkuModel,
-       as:'skus'
-     }
-   })
-  console.log(t)
-  ctx.body = t
+  goods.setTags(data.tags) // 关联标签
+  ctx.body = backMsg200({msg: '添加商品成功'})
 }
 
 
-module.exports ={
+const productSchema = {
+  type: 'object',
+  properties: {
+    cateId: {type: 'number', errorMessage: {type: '必须是数字'}},
+    pageSize: {type: 'number', default: 100, errorMessage: {type: '必须是字符串或者数字',}},
+    pageIndex: {type: 'number', default: 1, errorMessage: {type: '是一个数组包裹'}},
+    order: {type: 'string', default: 'DESC'},
+    keyword: {type: 'string'},
+  },
+  // required:['cateId']
+}
+
+// 获取商品
+async function productGetController(ctx, next) {
+  const data = ctx.query
+  ajvValid(data, productSchema)
+  const {cateId, pageSize, pageIndex} = data
+  const where = {}
+  const f = await productService(where, pageIndex, pageSize)
+  ctx.body = backMsg200({data: f, msg: '获取商品'})
+}
+
+//[批量] 删除商品
+async function delProductPostController(ctx, next) {
+  let goodsIds = ctx.request.body.goodsIds || ctx.request.params.goodsIds || []
+  goodsIds = Array.isArray(goodsIds) ? goodsIds : [goodsIds]
+  for (let id of goodsIds) {
+    await GoodsModel.destroy(
+      {
+        where: id, include: [{
+          model: GoodsSkuModel,
+          as: 'skus'
+        }]
+        // ,force:true // 强制删除
+      })
+  }
+  ctx.body = backMsg200({msg: '删除成功'})
+
+}
+
+
+module.exports = {
   productPostController,
   productGetController
 }

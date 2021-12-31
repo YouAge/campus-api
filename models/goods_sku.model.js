@@ -20,7 +20,6 @@ GoodsSkuModel.init(  {
   },
   name: {
     type: Sequelize.STRING(255),
-    allowNull: false,
     comment: "名字"
   },
   inventory: {

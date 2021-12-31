@@ -27,12 +27,12 @@ const sequelize = new Sequelize(database.dbName,database.user,database.password,
   },
   define:{
     // paranoid:true,
-    timestamps:true,
-    deletedAt:false,
+    timestamps: true,
     //把驼峰命名转换为下划线
-    underscored:true,
-    createdAt:'created_at',
+    underscored: true,
+    createdAt: 'created_at',
     updatedAt: 'updated_at',
+    deletedAt: 'deleted_at' //// 如果要强制删除，语句后面加上： force: true
   }
 })
 

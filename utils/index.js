@@ -33,11 +33,19 @@ function getIpAress() {
   return IPAdress
 }
 
+function getRandom(num) {
+  return Math.floor((Math.random() + Math.floor(Math.random() * 9 + 1)) * Math.pow(10, num - 1));
+}
 
 
+function isNumber(item) {
+  return typeof item === 'number' || !isNaN(item)
+}
 
 
-module.exports ={
+module.exports = {
   hierarchy,
-  getIpAress
+  getIpAress,
+  getRandom,
+  isNumber
 }

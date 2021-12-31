@@ -1,14 +1,19 @@
 const moment = require('moment')
+const {GoodsTagModel} = require("./goods_tag.model.js");
+const {BrandModel} = require("./brand.model.js");
 const {CateModel} = require("./cate.model.js");
 const {GoodsSkuModel} = require("./goods_sku.model.js");
-const {Model,Sequelize,DataTypes} = require('sequelize')
+const {Model, Sequelize, DataTypes} = require('sequelize')
 const {sequelize} = require('../utils/db-sequelize.js')
-class GoodsModel extends Model{}
-GoodsModel.init( {
+
+class GoodsModel extends Model {
+}
+
+GoodsModel.init({
   id: {
     type: Sequelize.INTEGER,
-    primaryKey:true,  // 主键
-    autoIncrement:true, // 自增长
+    primaryKey: true,  // 主键
+    autoIncrement: true, // 自增长
     // defaultValue : DataTypes.UUIDV4
   },
   name: {
@@ -32,7 +37,7 @@ GoodsModel.init( {
     allowNull: true,
     comment: "折扣价格",
     get(){
-      if(this.skus.length>0){
+      if (this.skus && this.skus.length > 0) {
         return this.skus[0].price
       }
       return 0.0
@@ -47,7 +52,7 @@ GoodsModel.init( {
     comment: "价格",
     get(){
       console.log(this)
-      if(this.skus.length>0){
+      if (this.skus && this.skus.length > 0) {
         return this.skus[0].price
       }
       return 0.0
@@ -60,10 +65,10 @@ GoodsModel.init( {
     type:DataTypes.VIRTUAL,
     comment:'库存量',
     get(){
-      if(this.skus.length>0){
+      if (this.skus && this.skus.length > 0) {
         let t = 0
-        this.skus.forEach(item=>{
-          t = t+item.inventory
+        this.skus.forEach(item => {
+          t = t + item.inventory
         })
         return t
       }
@@ -77,28 +82,45 @@ GoodsModel.init( {
     type: DataTypes.INTEGER,
     allowNull: true,
     defaultValue: 0,
-    field:"cate_id",
+    field: "cate_id",
     comment: "分类",
     set(val) {
-      if(Array.isArray(val)){
-        this.setDataValue("cate_id", val[val.length-1]);
-      }else {
-        this.setDataValue("cate_id", val);
+      if (Array.isArray(val)) {
+        this.setDataValue("cateId", val[val.length - 1]);
+      } else {
+        this.setDataValue("cateId", val);
       }
     },
   },
-  status:{
-    type:DataTypes.BOOLEAN,
+  brandId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+    field: "brand_id",
+    comment: "品牌id",
+  },
+  status: {
+    type: DataTypes.BOOLEAN,
     defaultValue: false,
     comment: '状态是否使用'
   },
   //销量， 收藏， 点击率，
 
+  isTypeExplain: {
+    type: DataTypes.INTEGER,
+    defaultValue: 1,
+    field: "is_type_explain",
+    comment: '什么类型商品介绍',
+    get() {
+      const od = this.getDataValue('is_type_explain')
+      return typeExplain[od]
+    }
+  },
 
-  details:{
-    type:DataTypes.TEXT,
-    defaultValue:'',
-    comment:'商品详情'
+  particulars: {
+    type: DataTypes.TEXT,
+    defaultValue: '',
+    comment: '商品详情'
   },
   created_at: {
     type: Sequelize.DATE,
@@ -122,30 +144,66 @@ GoodsModel.init( {
   ]
 })
 
-
+// 商品 sku
 GoodsModel.hasMany(GoodsSkuModel,{
   foreignKey:'goodsId',
   sourceKey: 'id',
   constraints: false,
-  as:'skus'
+  as: 'skus'
 })
-GoodsSkuModel.belongsTo(GoodsModel,{
-  foreignKey:'goodsId',
+GoodsSkuModel.belongsTo(GoodsModel, {
+  foreignKey: 'goodsId',
   targetKey: 'id',
   constraints: false
 })
 
-
-GoodsModel.belongsTo(CateModel,{
-  foreignKey: 'cate_id',
-  targetKey:'id',
-  constraints: false
+// 商品和类型
+GoodsModel.belongsTo(CateModel, {
+  foreignKey: 'cateId',
+  targetKey: 'id',
+  constraints: false,
+  as: 'cate'
 })
-CateModel.hasMany(GoodsModel,{
-  foreignKey:'cate_id',
+CateModel.hasMany(GoodsModel, {
+  foreignKey: 'cateId',
   sourceKey: 'id',
   constraints: false,
 })
+
+// 商品 与品牌
+GoodsModel.belongsTo(BrandModel, {
+  foreignKey: 'brandId',
+  targetKey: 'id',
+  constraints: false
+})
+BrandModel.hasMany(GoodsModel, {
+  foreignKey: 'brandId',
+  sourceKey: 'id',
+  constraints: false,
+})
+
+// 商品和标签 多对多
+GoodsModel.belongsToMany(GoodsTagModel, {
+  through: {
+    model: 'tags_goods'
+  },
+  foreignKey: 'goods_id',
+  constraints: false,
+  as: 'tags'
+})
+GoodsTagModel.belongsToMany(GoodsModel, {
+  through: {
+    model: 'tags_goods'
+  },
+  foreignKey: 'goods_tag_id',
+  constraints: false,
+  as: "goods"
+})
+
+const typeExplain = {
+  1: 'goods',
+  2: 'article',
+}
 
 module.exports = {
   GoodsModel

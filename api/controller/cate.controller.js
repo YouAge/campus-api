@@ -1,3 +1,4 @@
+const {GoodsTagModel} = require("../../models/goods_tag.model.js");
 const {backMsg200} = require("../../utils/backMsg.js");
 const {CateModel} = require("../../models/cate.model.js");
 const {ajvValid} = require("../../utils/ajv-verify.js");
@@ -16,7 +17,7 @@ const specsSchema = {
   required:['name','picture']
 }
 
-async function catePostController(ctx,next){
+async function catePostController(ctx, next){
   const data = ctx.request.body || ctx.request.params  || {}
   ajvValid(data,specsSchema)
   // 查询是否存在，
@@ -26,18 +27,32 @@ async function catePostController(ctx,next){
   ctx.body = backMsg200({data:node.id})
 }
 
-async function cateGetController(ctx,next){
+async function cateGetController(ctx, next) {
   const item = await CateModel.findAll(
-    {where:{superId:0},include:{model:CateModel,as:'children'}}
+    {where: {superId: 0}, include: {model: CateModel, as: 'children'}}
   )
   // 处理数据
-  console.log(item)
-  ctx.body = backMsg200({data:item,msg:"OK"})
+  ctx.body = backMsg200({data: item, msg: "OK"})
 }
 
 
+//tags
+async function tagGetController(ctx, next) {
+  const item = await GoodsTagModel.findAll({})
+  // 处理数据
+  ctx.body = backMsg200({data: item, msg: "OK"})
+}
+
+async function tagAddPostController(ctx, next) {
+  const data = ctx.request.body || ctx.request.params || {}
+  const node = await CateModel.create(data)
+  // 处理数据
+  ctx.body = backMsg200({data: node.id})
+}
 
 module.exports = {
   catePostController,
-  cateGetController
+  cateGetController,
+  tagGetController,
+  tagAddPostController
 }

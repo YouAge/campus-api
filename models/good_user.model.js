@@ -1,6 +1,6 @@
 const moment = require('moment')
 const bcrypt = require('bcryptjs')
-const {UserByShopModel} = require("./userByShop.model.js");
+const {UserByOrderModel} = require("./userByOrder.model.js");
 const {ShopCartModel} = require("./shopCart.model.js");
 const {AddressModel} = require("./address.model.js");
 const {Model,Sequelize,DataTypes} = require('sequelize')
@@ -34,7 +34,10 @@ GoodUserModel.init( {
   },
   email: {
     type: DataTypes.STRING(255),
-    allowNull: true
+    allowNull: true,
+    validate: {
+      isEmail: true
+    }
   },
   iphone: {
     type: DataTypes.STRING(255),
@@ -77,9 +80,9 @@ GoodUserModel.hasMany(ShopCartModel,{
 })
 
 // 以购买的历史商品，或者是待付款
-GoodUserModel.hasMany(UserByShopModel,{
-  foreignKey:'userId',
-  sourceKey:'id',
+GoodUserModel.hasMany(UserByOrderModel, {
+  foreignKey: 'userId',
+  sourceKey: 'id',
   as: 'byCarts'
 })
 
