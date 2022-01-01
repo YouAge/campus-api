@@ -26,17 +26,29 @@ AddressModel.init({
     field:'iphone',
     comment: "电话"
   },
+  fullLocation:{
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    field:'full_location',
+    comment: "地址",
+  },
   address: {
     type: DataTypes.STRING(255),
     allowNull: true,
     field:'address',
     comment: "地址"
   },
-  is_default: {
+  isDefault: {
     type: DataTypes.BOOLEAN,
     allowNull: true,
-    defaultValue: 0,
+    defaultValue: false,
+    field:'is_default',
     comment: "默认地址"
+  },
+  postalCode:{
+    type: DataTypes.STRING(255),
+    field:'postal_code',
+    comment: "邮编号"
   },
   created_at: {
     type: Sequelize.DATE,

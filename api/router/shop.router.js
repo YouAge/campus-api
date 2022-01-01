@@ -1,7 +1,10 @@
 
 const Router = require('koa-router')
 const jwt = require('jsonwebtoken')
-const {addCartShopController} = require("../controller/cartShop.controller.js");
+const {addUserAddressController,showUserAddressController,updateUserAddressController,delUserAddressController
+} = require("../controller/user.controller.js");
+const {addCartShopController,showCartShopController,delCartShopController,updateCartShopController
+} = require("../controller/cartShop.controller.js");
 const {
   shopUserGetInfoController,
   shopUserRegisterController,
@@ -14,19 +17,20 @@ const {shopHeadGetController,shopGoodsDetailsController,
 const router = new Router({ prefix: '/api' })
 
 // 需要登入路由
-const authPath = new Set(['/add-cart'])
+const authPath = new Set(['/cart','/address'])
 router.use(async (ctx,next)=>{
   const path = ctx.request.path
   if (authPath.has(path.replace(/^\/api/, ''))) {
-    const token = ctx.request.headers.AuthToken || ''
+    const token = ctx.request.headers.authtoken || ''
+    let data = null
     try {
-      const data = jwt.verify(token, shopSecret)
+      data = jwt.verify(token, shopSecret)
       // 挂在登入的用户id
-      ctx.state.userId = data.userId
-      await next()
     } catch (e) {
       ctx.body = backMsg401({})
     }
+    ctx.state.users = data
+    await next()
   } else {
    await next() // 一定要加 await
   }
@@ -55,13 +59,19 @@ router.get('/goods-details',shopGoodsDetailsController)
 router.post('/login-shop', shopUserLoginController)
 router.post('/register-shop', shopUserRegisterController)
 router.get('/get-user-info', shopUserGetInfoController)
+
 // 获取用户购物地址
+router.post('/address',addUserAddressController)
+router.get('/address',showUserAddressController)
+router.put('/address',updateUserAddressController)
+router.patch('/address',delUserAddressController)
 
 
-// 获取购物车
-
-// 加入购物车
-router.post('/add-cart', addCartShopController)
+// ---购物车
+router.post('/cart', addCartShopController)
+router.get('/cart',showCartShopController)
+router.put('/cat',updateCartShopController)
+router.patch('/cat',delCartShopController)
 
 
 // 获取购商品

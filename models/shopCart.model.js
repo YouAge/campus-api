@@ -42,12 +42,14 @@ ShopCartModel.init({
 ShopCartModel.belongsTo(GoodsModel, {
   foreignKey: 'goodsId',
   targetKey: 'id',
-  constraints: false
+  constraints: false,
+  as: 'goods'
 })
 ShopCartModel.belongsTo(GoodsSkuModel, {
   foreignKey: 'skuId',
   targetKey: 'id',
-  constraints: false
+  constraints: false,
+  as: 'goodsSku'
 })
 
 
