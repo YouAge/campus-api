@@ -28,19 +28,20 @@ ByProductModel.init({
     comment: "图片",
     defaultValue: []
   },
-  discount: {
+  oldPrice: {
     type: Sequelize.FLOAT(10, 2),
     allowNull: true,
-    comment: "支付价格",
+    field: 'discount',
+    comment: "原价",
   },
   price: {
     type: Sequelize.FLOAT(10, 2), // 虚拟字段，
     allowNull: true,
-    comment: "原价格",
+    comment: "支付价",
   },
   count: {
     type: Sequelize.INTEGER,
-    comment: '库存量',
+    comment: '商品数量',
   },
   // cateId: {
   //   type: DataTypes.INTEGER,
@@ -63,7 +64,7 @@ ByProductModel.init({
   //   field:"brand_id",
   //   comment: "品牌id",
   // },
-  skus: {
+  specs: {
     type: Sequelize.JSON,
     defaultValue: [],
     comment: '属性，[]'

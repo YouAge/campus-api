@@ -1,3 +1,5 @@
+const {ByProductModel} = require("../../models/byProduct.model.js");
+const {UserByOrderModel} = require("../../models/userByOrder.model.js");
 const {GoodsSkuModel} = require("../../models/goods_sku.model.js");
 const {GoodsModel} = require("../../models/goods.model.js");
 
@@ -37,6 +39,27 @@ async function productService(where = {}, pageIndex, pageSize) {
 
 }
 
+
+async function orderTimeService(orderId, userId) {
+  const order = await UserByOrderModel.findOne({
+    where: {orderId, userId,}, include: {
+      model: ByProductModel,
+      as: 'goods'
+    }
+  })
+  // const stimer = new Date(order.created_at)
+  const dtim = new Date(order.created_at)
+  const payLatestTime = new Date(dtim.setMinutes(dtim.getMinutes() + 30))
+  const newTimer = new Date()
+  let countdown = payLatestTime.getTime() - newTimer.getTime()
+  countdown = countdown > 0 ? parseInt(countdown / 1000) : -1
+  console.log(countdown, newTimer, payLatestTime)
+  order.setDataValue('payLatestTime', payLatestTime)
+  order.setDataValue('countdown', countdown)
+  return order
+}
+
 module.exports = {
-  productService
+  productService,
+  orderTimeService
 }

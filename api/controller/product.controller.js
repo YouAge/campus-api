@@ -15,11 +15,7 @@ const {ajvValid} = require("../../utils/ajv-verify.js");
 const schema = {
   type: 'object',
   properties: {
-    name: {
-      type: 'string', errorMessage: {
-        type: '必须是字符串或者数字',
-      }
-    },
+    name: {type: 'string', errorMessage: {type: '必须是字符串',}},
     value: {type: 'array', errorMessage: {type: '是一个数组包裹'}},
     status: {type: 'boolean', default: false},
     cateId: {type: 'array'},

@@ -1,5 +1,5 @@
 const {ByProductModel} = require("./byProduct.model.js");
-const {getRandom} = require("../utils");
+const moment = require('moment')
 const {Sequelize} = require("sequelize");
 const {Model} = require("sequelize");
 const {sequelize} = require('../utils/db-sequelize.js')
@@ -24,11 +24,7 @@ UserByOrderModel.init({
     allowNull: true,
     field: 'order_id',
     comment: "订单号",
-    set(val) {
-      // 生成订单号， 时间+ 随机数字
-      const id = setOrderId()
-      this.setDataValue('order_id', id)
-    }
+
   },
 
   shopNumber: {
@@ -37,7 +33,10 @@ UserByOrderModel.init({
     defaultValue: 0,
     comment: "商品数量"
   },
-
+  address: {
+    type: Sequelize.JSON,
+    comment: '收获地址'
+  },
   status: {
     type: Sequelize.INTEGER,
     defaultValue: 1,
@@ -52,8 +51,14 @@ UserByOrderModel.init({
       const od = this.getDataValue('status')
       return byShopStatus[od]
     }
+  },
+  created_at: {
+    type: Sequelize.DATE,
+    allowNull: false,
+    get() {
+      return moment(this.getDataValue('created_at')).format('YYYY-MM-DD HH:mm:ss');
+    }
   }
-
 
 }, {
   sequelize,
@@ -61,18 +66,7 @@ UserByOrderModel.init({
 })
 
 
-function setOrderId() {
-  //订单号生成， 4+时间戳+4
-  // UserByShopModel.findOne({where:{id:'1'}})
-  // const h = getRandom(4)
-  const f = getRandom(10)
-  const orderId = '' + new Date().getTime() + f
-  const p = UserByOrderModel.findOne({where: {orderId: orderId}})
-  if (p) {
-    return setOrderId()
-  }
-  return orderId
-}
+
 
 const byShopStatus = {
   0: '待付款',
@@ -86,19 +80,22 @@ const byShopStatus = {
 
 // 订单 => 商品，  一对多
 // 商品和类型
-UserByOrderModel.belongsTo(ByProductModel, {
+UserByOrderModel.hasMany(ByProductModel, {
   foreignKey: 'orderId',
   targetKey: 'id',
-  constraints: false
+  constraints: false,
+  as: 'goods'
 })
-ByProductModel.hasMany(UserByOrderModel, {
+ByProductModel.belongsTo(UserByOrderModel, {
   foreignKey: 'orderId',
   sourceKey: 'id',
   constraints: false,
+  as: 'order'
 })
 
 module.exports = {
-  UserByOrderModel
+  UserByOrderModel,
+  byShopStatus
 }
 
 

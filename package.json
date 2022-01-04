@@ -15,6 +15,7 @@
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^2.1.1",
     "ajv-i18n": "^4.2.0",
+    "alipay-sdk": "^3.2.0",
     "bcryptjs": "^2.4.3",
     "fs-extra": "^10.0.0",
     "jsonwebtoken": "^8.5.1",
@@ -28,6 +29,7 @@
     "nodemon": "^2.0.15",
     "path-exists": "^4.0.0",
     "pg": "^8.7.1",
+    "request": "^2.88.2",
     "sequelize": "^7.0.0-alpha.2",
     "uuid": "^8.3.2"
   }

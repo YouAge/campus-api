@@ -1,7 +1,14 @@
 
 const Router = require('koa-router')
 const jwt = require('jsonwebtoken')
-const {addUserAddressController,showUserAddressController,updateUserAddressController,delUserAddressController
+const {
+  addShopOrderController,
+  delShopOrderController,
+  showShopOrderController,
+  updateShopOrderController
+} = require("../controller/shopOrders.controller.js");
+const {
+  addUserAddressController, showUserAddressController, updateUserAddressController, delUserAddressController
 } = require("../controller/user.controller.js");
 const {addCartShopController,showCartShopController,delCartShopController,updateCartShopController
 } = require("../controller/cartShop.controller.js");
@@ -17,7 +24,7 @@ const {shopHeadGetController,shopGoodsDetailsController,
 const router = new Router({ prefix: '/api' })
 
 // 需要登入路由
-const authPath = new Set(['/cart','/address'])
+const authPath = new Set(['/cart', '/address', '/order'])
 router.use(async (ctx,next)=>{
   const path = ctx.request.path
   if (authPath.has(path.replace(/^\/api/, ''))) {
@@ -63,17 +70,21 @@ router.get('/get-user-info', shopUserGetInfoController)
 // 获取用户购物地址
 router.post('/address',addUserAddressController)
 router.get('/address',showUserAddressController)
-router.put('/address',updateUserAddressController)
-router.patch('/address',delUserAddressController)
+router.put('/address', updateUserAddressController)
+router.patch('/address', delUserAddressController)
 
 
 // ---购物车
 router.post('/cart', addCartShopController)
-router.get('/cart',showCartShopController)
-router.put('/cat',updateCartShopController)
-router.patch('/cat',delCartShopController)
+router.get('/cart', showCartShopController)
+router.put('/cat', updateCartShopController)
+router.patch('/cat', delCartShopController)
 
+// -- 订单生成
+router.post('/order', addShopOrderController)
+router.get('/order', showShopOrderController)
+router.put('/order', updateShopOrderController)
+router.patch('/order', delShopOrderController)
 
-// 获取购商品
 
 module.exports = router

@@ -38,6 +38,7 @@ const data = {
 // ajvValid(data,schema)
 // console.log(data)
 
+
 module.exports ={
   ajvValid
 }
