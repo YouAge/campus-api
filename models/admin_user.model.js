@@ -71,3 +71,7 @@ AdminUserModel.init({
     },
   ]
 })
+
+module.exports = {
+  AdminUserModel
+}

@@ -4,15 +4,15 @@
  */
 
 const  { Sequelize } = require('sequelize')
-
-const database = {
-  dialect:'mysql',//'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql';
-  host:'localhost', //localhost 、、47.108.160.25
-  port: 3306, //5432  3306
-  user:'root', //postgres
-  password:'123456', // mysql9999
-  dbName:'shop'
-}
+const database = require('../config').database
+// const database = {
+//   dialect:'mysql',//'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql';
+//   host:'localhost', //localhost 、、47.108.160.25
+//   port: 3306, //5432  3306
+//   user:'root', //postgres
+//   password:'123456', // mysql9999
+//   dbName:'shop'
+// }
 
 const sequelize = new Sequelize(database.dbName,database.user,database.password,{
   dialect:database.dialect, //'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql';

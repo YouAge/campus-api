@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken')
 const {expTime} = require("../../config");
 const {shopSecret} = require("../../config");
 const bcrypt = require('bcryptjs')
+const {adminSecret} = require("../../config");
+const {AdminUserModel} = require("../../models/admin_user.model");
 const {backMsg400} = require("../../utils/backMsg.js");
 const {backMsg401} = require("../../utils/backMsg.js");
 const {AddressModel} = require("../../models/address.model.js");
@@ -30,6 +32,33 @@ async function shopUserPageController(ctx,next){
   })
   return  backMsg200({data:shopUsers})
 }
+
+
+
+const loginAdminSchema = {
+  type:'object',
+  properties: {
+    username: {type: "string"},
+    password: {type: 'string',minLength:3,errorMessage:{minLength:'长度必须大于3',}},
+  },
+  required:['username','password']
+}
+// 管理员账号登入
+async function adminUserLogin(ctx,next){
+  const data = ctx.request.body || ctx.request.params  || {}
+  ajvValid(data,loginAdminSchema)
+  const user = await AdminUserModel.findOne({
+    where:{username:data.username,status:true},
+  })
+  if(!user)return   ctx.body = backMsg400({msg:'用户名不存在'})
+
+  if(!bcrypt.compareSync(data.password,user.password)) return  ctx.body = backMsg400({msg:'账号或密码错误'})
+  // 生成token
+  const token = jwt.sign({id:user.id,email:user.email,username:user.username}, adminSecret, { expiresIn: expTime })
+  ctx.body =  backMsg200({data:{user,token},msg:'欢迎回来'})
+
+}
+
 
 
 
@@ -161,5 +190,6 @@ module.exports ={
   addUserAddressController,
   delUserAddressController,
   updateUserAddressController,
-  showUserAddressController
+  showUserAddressController,
+  adminUserLogin
 }
