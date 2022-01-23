@@ -9,7 +9,7 @@ const {imgPostController,imgGetController,imgMapGetController} = require("../con
 const {productGetController, productPostController} = require("../controller/product.controller.js");
 const {
   cateGetController, catePostController,
-  tagGetController, tagAddPostController
+  tagGetController, tagAddPostController,tagDelController
 } = require("../controller/cate.controller.js");
 const router = new Router({prefix: '/api/admin'})
 const {showSpecsController} = require("../controller/specs.controller.js");
@@ -17,15 +17,15 @@ const {specsController} = require("../controller/specs.controller.js");
 //----后台管理----
 
 router.use(async (ctx,next)=>{
-  const token = ctx.request.headers.admintoken || ''
-  let data = null
-  try {
-    data = jwt.verify(token, adminSecret)
-    // 挂在登入的用户id
-  } catch (e) {
-    ctx.body = backMsg401({})
-  }
-  ctx.state.users = data
+  // const token = ctx.request.headers.admintoken || ''
+  // let data = null
+  // try {
+  //   data = jwt.verify(token, adminSecret)
+  //   // 挂在登入的用户id
+  // } catch (e) {
+  //   ctx.body = backMsg401({})
+  // }
+  // ctx.state.users = data
   await next()
 })
 
@@ -51,6 +51,7 @@ router.get('/cate', cateGetController)
 // tag 标签
 router.get('/tags', tagGetController)
 router.post('/tags', tagAddPostController)
+router.delete('/tags',tagDelController)
 
 // 商品
 router.post('/product', productPostController)

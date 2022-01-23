@@ -19,6 +19,11 @@ const schema = {
     pageIndex:{type:'number',default: 1,errorMessage:{type:'是一个数组包裹'}},
     order: {type:'string',default:'DESC'},
     keyword:{type:'string'},
+    // 字段排序
+    inventory:{type:'boolean',default:'false'},
+    onlyDiscount:{type:'boolean',default:'false'},
+    sortField:{type:'string', enum: ["publishTime", "orderNum", "price", "evaluateNum"],default:'price'}, //默认最高人气
+    sortMethod:{type:'string',enum:['DESC','ASC',''],default:""}
   },
   // required:['cateId']
 }
@@ -50,7 +55,7 @@ async function shopGoodsPageGetController(ctx, next){
     ]
   }
 
-  const f = await productService(where, pageIndex, pageSize)
+  const f = await productService( pageIndex, pageSize,where)
   // await GoodsModel.findAndCountAll({
   //   where,
   //       include:{

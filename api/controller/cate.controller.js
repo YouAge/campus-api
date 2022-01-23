@@ -50,9 +50,17 @@ async function tagAddPostController(ctx, next) {
   ctx.body = backMsg200({data: node.id})
 }
 
+async function tagDelController(ctx,next){
+  const id = ctx.query.id
+
+  await CateModel.destroy({where:{id}})
+  ctx.body = backMsg200({})
+}
+
 module.exports = {
   catePostController,
   cateGetController,
   tagGetController,
-  tagAddPostController
+  tagAddPostController,
+  tagDelController
 }

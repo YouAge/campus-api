@@ -4,7 +4,7 @@ const {GoodsSkuModel} = require("../../models/goods_sku.model.js");
 const {GoodsModel} = require("../../models/goods.model.js");
 
 
-async function productService(where = {}, pageIndex, pageSize) {
+async function productService( pageIndex, pageSize,where ={}, order= [['created_at', 'DESC']]) {
 
   return await GoodsModel.findAndCountAll({
     where,
@@ -15,7 +15,7 @@ async function productService(where = {}, pageIndex, pageSize) {
     },
     limit: pageSize,
     offset: (pageIndex - 1) * pageSize,
-    order: [['created_at', 'DESC']],
+   order,
     // subQuery:false // 不在子查询中分页
 
     // where:{id:1},
@@ -59,7 +59,21 @@ async function orderTimeService(orderId, userId) {
   return order
 }
 
+async function orderPageService(userId,data){
+  return  await UserByOrderModel.findAndCountAll({
+    where: { userId}, include: {
+      model: ByProductModel,
+      as: 'goods'
+    },
+    limit:data.pageSize,
+    offset:  (data.pageIndex - 1) * data.pageSize,
+  })
+
+}
+
+
 module.exports = {
   productService,
-  orderTimeService
+  orderTimeService,
+  orderPageService
 }

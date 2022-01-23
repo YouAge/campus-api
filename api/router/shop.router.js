@@ -82,9 +82,12 @@ router.patch('/cat', delCartShopController)
 
 // -- 订单生成
 router.post('/order', addShopOrderController)
-router.get('/order', showShopOrderController)
+router.get('/order', showShopOrderController) // 查看所有的订单，单个订单
 router.put('/order', updateShopOrderController)
 router.patch('/order', delShopOrderController)
+
+// 查看所以购买记录
+
 
 
 module.exports = router

@@ -1,3 +1,4 @@
+const {orderPageService} = require("../services/product.service.js");
 const {orderTimeService} = require("../services/product.service.js");
 const {byShopStatus} = require("../../models/userByOrder.model.js");
 const {backMsg400} = require("../../utils/backMsg.js");
@@ -95,7 +96,7 @@ async function delShopOrderController(ctx, next) {
 async function updateShopOrderController(ctx, next) {
 }
 
-//获取所有的订单
+//获取所有的订单, 筛选 不同类型的 订单状态
 async function showShopOrderController(ctx, next) {
   const userId = ctx.state.users.id
   const data = ctx.query || {}
@@ -104,8 +105,7 @@ async function showShopOrderController(ctx, next) {
     const order = await orderTimeService(data.orderId, userId)
     return ctx.body = backMsg200({data: order, msg: 'ok'})
   }
-
-
+  ctx.body =  await orderPageService(userId,data)
 }
 
 

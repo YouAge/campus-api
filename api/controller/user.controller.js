@@ -19,6 +19,7 @@ const schema = {
   },
   // required:['cateId']
 }
+
 async function shopUserPageController(ctx,next){
   const data = ctx.query
   ajvValid(data,schema)
@@ -30,7 +31,7 @@ async function shopUserPageController(ctx,next){
     limit:data.pageSize,
     offset:  (data.pageIndex - 1) * data.pageSize,
   })
-  return  backMsg200({data:shopUsers})
+  ctx.body = backMsg200({data:shopUsers})
 }
 
 
