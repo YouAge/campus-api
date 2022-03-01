@@ -77,7 +77,10 @@ async function addShopOrderController(ctx, next) {
   const orderId = await setOrderId()
   // 生成订单, // 计算总价格，是否与传过来的价格一直
 
-  let order = await UserByOrderModel.create({...data, userId, orderId}, {
+
+  const dtim = new Date()
+  let order = await UserByOrderModel.create({...data, userId, orderId,
+    payLatestTime : new Date(dtim.setMinutes(dtim.getMinutes() + 30))}, {
     include: {
       model: ByProductModel,
       as: 'goods'
@@ -96,22 +99,51 @@ async function delShopOrderController(ctx, next) {
 async function updateShopOrderController(ctx, next) {
 }
 
+
+
+//查询字段
+const ordSchema = {
+  type:'object',
+  properties: {
+    // cateId: {type: 'number', errorMessage: {type: '必须是数字'}},
+    pageSize: {type: 'number', default: 100, errorMessage: {type: '必须是字符串或者数字',}},
+    pageIndex: {type: 'number', default: 1, errorMessage: {type: '是一个数组包裹'}},
+    orderId: {type: 'string',},
+    orderState:{type:"number",default:1}
+  }
+}
+
 //获取所有的订单, 筛选 不同类型的 订单状态
 async function showShopOrderController(ctx, next) {
   const userId = ctx.state.users.id
   const data = ctx.query || {}
+  ajvValid(data, ordSchema)
   if (data.orderId) {
     // 查找指定订单 //订单计时 支付， 30分钟倒计时， 更具生成订单开始计算
     const order = await orderTimeService(data.orderId, userId)
     return ctx.body = backMsg200({data: order, msg: 'ok'})
   }
-  ctx.body =  await orderPageService(userId,data)
+  const where = { userId}
+  if(data.orderState !==0){
+    where.orderState = data.orderState
+  }
+  ctx.body = backMsg200({data:await orderPageService(where,data)})
 }
 
+async function showAdminOrderController(ctx,next){
+  const data = ctx.query || {}
+  ajvValid(data, ordSchema)
+  const where = {}
+  if(data.orderState !==0){
+    where.orderState = data.orderState
+  }
+  ctx.body = backMsg200({data:await orderPageService(where,data)})
+}
 
 module.exports = {
   addShopOrderController,
   delShopOrderController,
   updateShopOrderController,
-  showShopOrderController
+  showShopOrderController,
+  showAdminOrderController
 }

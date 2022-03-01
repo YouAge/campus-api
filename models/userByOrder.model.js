@@ -24,7 +24,6 @@ UserByOrderModel.init({
     allowNull: true,
     field: 'order_id',
     comment: "订单号",
-
   },
 
   shopNumber: {
@@ -33,23 +32,59 @@ UserByOrderModel.init({
     defaultValue: 0,
     comment: "商品数量"
   },
+  // payMoney:{
+  //   type:
+  // },
+  payMoney: {
+    type: Sequelize.FLOAT(10,2),
+    allowNull: true,
+    comment: "总价格",
+    field:"pay_money"
+  },
+
   address: {
     type: Sequelize.JSON,
     comment: '收获地址'
   },
-  status: {
+  orderState: {
     type: Sequelize.INTEGER,
     defaultValue: 1,
-    comment: '购物状态，0 待付款，1已完成 ，2退款中，3退款完成',
+    field:'status',
+    comment: '购物状态，1 待付款，2待发货 ，3待收获，4待评价,5 已完成 ,6 以取消',
     validate: {
       isIn: {
-        args: [[0, 1, 2, 3]],
+        args: [[1, 2, 3, 4,5,6]],
         msg: "必须是数字0或者1"
       }
     },
+    // get() {
+    //   const od = this.getDataValue('status')
+    //   return byShopStatus[od]
+    // }
+  },
+
+  payLateTime:{
+    type: Sequelize.DATE,
+    field: 'pay_late_time',
+    allowNull: false,
+    comment:'最后截止的时间',
     get() {
-      const od = this.getDataValue('status')
-      return byShopStatus[od]
+      return moment(this.getDataValue('pay_late_time')).format('YYYY-MM-DD HH:mm:ss');
+    }
+  },
+  countdown:{
+    type: Sequelize.VIRTUAL, // 虚拟字段，
+    allowNull: true,
+    comment: "倒计时，-1，或者秒",
+    get(){
+      const dtime = new Date(this.getDataValue('payLateTime'))
+      const stime = new Date()
+      let countdown = dtime.getTime() - stime.getTime()
+      countdown = countdown > 0 ? parseInt(countdown / 1000) : -1
+      return countdown
+    },
+    set(){
+      throw new Error('不设置该字段')
     }
   },
   created_at: {

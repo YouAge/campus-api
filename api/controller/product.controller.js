@@ -89,7 +89,7 @@ async function productGetController(ctx, next) {
   ajvValid(data, productSchema)
   const {cateId, pageSize, pageIndex} = data
   const where = {}
-  const f = await productService(where, pageIndex, pageSize)
+  const f = await productService( pageIndex, pageSize,where)
   ctx.body = backMsg200({data: f, msg: '获取商品'})
 }
 
@@ -111,8 +111,45 @@ async function delProductPostController(ctx, next) {
 
 }
 
+const goodsSchema = {
+  type: 'object',
+  properties: {
+    name: {type: 'string', errorMessage: {type: '必须是字符串',}},
+    value: {type: 'array', errorMessage: {type: '是一个数组包裹'}},
+    status: {type: 'boolean', default: false},
+    // cateId: {type: 'array'},
+    picture: {type: 'array', errorMessage: {type: '图片是一个地址'}},
+    desc: {type: 'string'}, // 描述
+    //商品sku  商品多种属性规格， 价格 图片
+    skus: {type: 'array'},
+    specs: {type: 'array'},
+    particulars: {type: 'string', errorMessage: {type: '说明是一个html string'}},
+    tags: {type: 'array',},
+    isTypeExplain: {type: "number", default: 1},
+    brandId: {type: 'number'}
+  },
+  // required:['cateId']
+}
+async function productPutController(ctx,next){
+  const data = ctx.request.body || ctx.request.params || {}
+  ajvValid(data, goodsSchema)
+  if(data.type ===1){
+    // 改变商品状态
+    await GoodsModel.update({
+      status:data.status,
+    },{where:{id:data.id}})
+    ctx.body = backMsg200({msg: '更新成功'})
+  }else if(data.type ===2){
+    await GoodsModel.update({ cateId:data.cateId,name:data.name,
+      desc:data.desc,particulars:data.particulars, picture:data.picture
+    },{where:{id:data.id}})
+    ctx.body = backMsg200({msg: '更新成功'})
+  }
+}
+
 
 module.exports = {
   productPostController,
-  productGetController
+  productGetController,
+  productPutController
 }

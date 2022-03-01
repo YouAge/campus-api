@@ -1,5 +1,12 @@
 const Router = require('koa-router')
 const jwt = require("jsonwebtoken");
+const {productPutController} = require("../controller/product.controller.js");
+const {delSpecsController} = require("../controller/specs.controller.js");
+const {cateUpdateController} = require("../controller/cate.controller.js");
+const {cateDelController} = require("../controller/cate.controller.js");
+const {adminUserInfo} = require("../controller/user.controller.js");
+const {updateUserPageController} = require("../controller/user.controller.js");
+const {showAdminOrderController} = require("../controller/shopOrders.controller.js");
 const {adminUserLogin} = require("../controller/user.controller");
 const {backMsg401} = require("../../utils/backMsg");
 const {adminSecret} = require("../../config");
@@ -31,6 +38,7 @@ router.use(async (ctx,next)=>{
 
 // 管理员登入
 router.post('/admin-login',adminUserLogin)
+router.get('/get-admin-info',adminUserInfo)
 
 
 // 图片
@@ -42,23 +50,35 @@ router.post('/imgs',imgMapGetController)
 //规格属性
 router.post('/specs', specsController)
 router.get('/specs', showSpecsController)
-router.delete('/specs')
+router.delete('/specs',delSpecsController)
 
 // 类型
 router.post('/cate', catePostController)
 router.get('/cate', cateGetController)
+router.delete('/cate', cateDelController)
+router.put('/cate', cateUpdateController)
 
 // tag 标签
 router.get('/tags', tagGetController)
 router.post('/tags', tagAddPostController)
 router.delete('/tags',tagDelController)
 
+
+
+
 // 商品
 router.post('/product', productPostController)
 router.get('/product', productGetController)
 
+//更新商品
+router.put('/product',productPutController)
+
+
+
 // 用户
 router.get('/shop-user', shopUserPageController)
+router.post('/shop-user',updateUserPageController)
 
+router.get('/order',showAdminOrderController)
 
 module.exports = router

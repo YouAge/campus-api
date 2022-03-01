@@ -1,3 +1,5 @@
+const {CateModel} = require("../../models/cate.model.js");
+const {GoodsTagModel} = require("../../models/goods_tag.model.js");
 const {ByProductModel} = require("../../models/byProduct.model.js");
 const {UserByOrderModel} = require("../../models/userByOrder.model.js");
 const {GoodsSkuModel} = require("../../models/goods_sku.model.js");
@@ -8,11 +10,21 @@ async function productService( pageIndex, pageSize,where ={}, order= [['created_
 
   return await GoodsModel.findAndCountAll({
     where,
-    include: {
+    include: [{
       model: GoodsSkuModel,
       as: 'skus',
       order: [['price'], 'DESC']
     },
+      {
+        model:GoodsTagModel,
+        as:'tags',
+        where:{}
+      },
+      {
+        model:CateModel,
+        as:'cate',
+      }
+    ],
     limit: pageSize,
     offset: (pageIndex - 1) * pageSize,
    order,
@@ -59,9 +71,10 @@ async function orderTimeService(orderId, userId) {
   return order
 }
 
-async function orderPageService(userId,data){
+async function orderPageService(where,data){
+
   return  await UserByOrderModel.findAndCountAll({
-    where: { userId}, include: {
+    where, include: {
       model: ByProductModel,
       as: 'goods'
     },

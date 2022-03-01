@@ -25,8 +25,14 @@ const specsSchema = {
 async function specsController(ctx,next){
   const data = ctx.request.body || ctx.request.params  || {}
   ajvValid(data,specsSchema)
-  // 数据存储
-  const node =  await SpecsModel.create({name:data.name,desc:'zhe'})
+  let node = null
+  const spec = await SpecsModel.findOne({where:{name:data.name}})
+  if(spec){
+    node = spec
+  }else {
+    // 数据存储
+     node =  await SpecsModel.create({name:data.name,desc:'zhe'})
+  }
   //存
   let values = []
   data.value.forEach(item=>values.push({name: item,superId:node.id}))
@@ -34,6 +40,11 @@ async function specsController(ctx,next){
   ctx.body = backMsg200({data:node.id})
 }
 
+async function delSpecsController(ctx,next){
+  const id = ctx.query.id
+  await SpecsModel.destroy({where:{id}})
+  ctx.body = backMsg200({})
+}
 
 async function showSpecsController(ctx,next){
   const item = await SpecsModel.findAll({
@@ -50,5 +61,6 @@ async function showSpecsController(ctx,next){
 }
 module.exports ={
   specsController,
-  showSpecsController
+  showSpecsController,
+  delSpecsController
 }

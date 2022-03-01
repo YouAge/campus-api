@@ -52,6 +52,11 @@ GoodUserModel.init( {
     type:DataTypes.BOOLEAN,
     defaultValue: false,
     comment: '状态是否使用'
+  },
+  desc:{
+    type: DataTypes.TEXT,
+    defaultValue: '',
+    // allowNull: true
   }
 }, {
   sequelize,

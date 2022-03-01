@@ -27,7 +27,19 @@ GoodsTagModel.init({
     get() {
       return moment(this.getDataValue('created_at')).format('YYYY-MM-DD');
     }
-  }
+  },
+
+  picture: {
+    type: Sequelize.STRING(255),
+    allowNull: false,
+    defaultValue:'',
+    comment: "图片地址"
+  },
+  isHome:{
+    type:Sequelize.BOOLEAN,
+    defaultValue: false,
+    comment: '是否首页展示'  }
+
 }, {
   sequelize,
   tableName: 'good_tag'

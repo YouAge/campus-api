@@ -1,4 +1,5 @@
 const moment = require('moment')
+const {GoodsTagModel} = require("./goods_tag.model.js");
 const {Model,Sequelize,DataTypes} = require('sequelize')
 const {sequelize} = require('../utils/db-sequelize.js')
 
@@ -18,6 +19,12 @@ CateModel.init( {
     allowNull: true,
     defaultValue:0,
     comment: "父id"
+  },
+  tagId:{
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
+    field: 'tag_id',
+    comment: "tag_id"
   },
   picture: {
     type: DataTypes.STRING(255),
@@ -54,6 +61,20 @@ CateModel.init( {
 CateModel.hasMany(CateModel, {constraints: false, foreignKey: 'superId', through: null, as: 'children',})
 CateModel.belongsTo(CateModel,
   {constraints: false, foreignKey: 'id', targetKey: 'superId', through: null, as: 'value'})
+
+// 商品 sku
+GoodsTagModel.hasMany(CateModel,{
+  foreignKey:'tagId',
+  sourceKey: 'id',
+  constraints: false,
+  as: 'cates'
+})
+CateModel.belongsTo(GoodsTagModel, {
+  foreignKey: 'tagId',
+  targetKey: 'id',
+  constraints: false
+})
+
 module.exports = {
   CateModel
 }

@@ -13,7 +13,7 @@ const {ajvValid} = require("../../utils/ajv-verify.js");
 const schema = {
   type:'object',
   properties: {
-    userId: {type: 'number',errorMessage:{type:'必须是数字'}},
+    // userId: {type: 'number',errorMessage:{type:'必须是数字'}},
     pageSize: {type: 'number',default: 100,errorMessage:{type:'必须是字符串或者数字',}},
     pageIndex:{type:'number',default: 1,errorMessage:{type:'是一个数组包裹'}},
   },
@@ -32,6 +32,25 @@ async function shopUserPageController(ctx,next){
     offset:  (data.pageIndex - 1) * data.pageSize,
   })
   ctx.body = backMsg200({data:shopUsers})
+}
+const updateSchema = {
+  type:'object',
+  properties: {
+    // userId: {type: 'number',errorMessage:{type:'必须是数字'}},
+    // pageSize: {type: 'number',default: 100,errorMessage:{type:'必须是字符串或者数字',}},
+    // pageIndex:{type:'number',default: 1,errorMessage:{type:'是一个数组包裹'}},
+    type:{type:'number',enum:[1,2,3,4,5]}
+  },
+  required:['type']
+}
+async function updateUserPageController(ctx,next){
+  const data = ctx.query
+  ajvValid(data,schema)
+  if(data.type ===1){
+    await GoodUserModel.update({status:data.status},{where:{id:data.id}})
+    return  ctx.body = backMsg200({})
+  }
+  ctx.body = backMsg200({})
 }
 
 
@@ -56,10 +75,21 @@ async function adminUserLogin(ctx,next){
   if(!bcrypt.compareSync(data.password,user.password)) return  ctx.body = backMsg400({msg:'账号或密码错误'})
   // 生成token
   const token = jwt.sign({id:user.id,email:user.email,username:user.username}, adminSecret, { expiresIn: expTime })
+  user.password = ''
   ctx.body =  backMsg200({data:{user,token},msg:'欢迎回来'})
 
 }
 
+async function adminUserInfo(ctx,next){
+  const token = ctx.request.headers.amintoken || ''
+  try {
+    const data = jwt.verify(token,adminSecret)
+    const user = await AdminUserModel.findOne({where:{id:data.id},attributes: { exclude: ['password'] }})
+    ctx.body = backMsg200({data:user,msg:'验证通过'})
+  }catch (e) {
+    ctx.body = backMsg401({})
+  }
+}
 
 
 
@@ -70,24 +100,32 @@ async function adminUserLogin(ctx,next){
 const loginSchema = {
   type:'object',
   properties: {
-    username: {type: "string",format:'email',},
-    password: {type: 'string',minLength:3,errorMessage:{minLength:'长度必须大于3',}},
+    username: {type: "string",},
+    password: {type: 'string'},
+    code:{type:'string',},
+    isIphone:{type:'boolean'}
   },
-  required:['username','password']
+  required:['username']
 }
 
 // 用户登入
 async function shopUserLoginController(ctx,next){
   const data = ctx.request.body || ctx.request.params  || {}
   ajvValid(data,loginSchema)
-  const user = await GoodUserModel.findOne({
+  const user1 = await GoodUserModel.findOne({
     where:{email:data.username,status:true},
   })
+  const user2 = await GoodUserModel.findOne({
+    where:{iphone:data.username,status:true},
+  })
+  const user = user1 || user2
   if(!user)return   ctx.body = backMsg400({msg:'用户名不存在'})
-
-  if(!bcrypt.compareSync(data.password,user.password)) return  ctx.body = backMsg400({msg:'账号或密码错误'})
+  if(!data.isIphone){
+    if(!bcrypt.compareSync(data.password,user.password)) return  ctx.body = backMsg400({msg:'账号或密码错误'})
+  }
   // 生成token
   const token = jwt.sign({id:user.id,email:user.email,username:user.username}, shopSecret, { expiresIn: expTime })
+  user.password = ''
   ctx.body =  backMsg200({data:{user,token},msg:'欢迎回来'})
 }
 
@@ -122,11 +160,30 @@ async function shopUserGetInfoController(ctx,next){
   const token = ctx.request.headers.authtoken || ''
   try {
     const data = jwt.verify(token,shopSecret)
-    const user = await GoodUserModel.findOne({where:{id:data.id}})
+    const user = await GoodUserModel.findOne({where:{id:data.id}}) //,attributes: { exclude: ['password'] }
+    if(user.password){
+      user.setDataValue('password',true)
+    }
     ctx.body = backMsg200({data:user,msg:'验证通过'})
   }catch (e) {
     ctx.body = backMsg401({})
   }
+}
+async function updateShopUserInfo(ctx,next){
+  const userId = ctx.state.users.id
+  const data = ctx.request.body || ctx.request.params  || {}
+  if(data.type === 1){
+    await GoodUserModel.update({password:data.passwrod},{where:{id:userId}})
+    ctx.body = backMsg200({msg:'修改密码成功'})
+  }else if(data.type ===2 ){
+    await GoodUserModel.update({iphone:data.iphone,desc:data.desc,
+        email:data.email,username:data.username,sex:data.sex},
+      {where:{id:userId}})
+    ctx.body = backMsg200({msg:'信息更新成功'})
+  }else {
+    ctx.body = backMsg400({msg:'请正常操作0 '})
+  }
+
 }
 
 
@@ -192,5 +249,8 @@ module.exports ={
   delUserAddressController,
   updateUserAddressController,
   showUserAddressController,
-  adminUserLogin
+  adminUserLogin,
+  updateUserPageController,
+  adminUserInfo,
+  updateShopUserInfo
 }

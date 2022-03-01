@@ -32,6 +32,17 @@ GoodsModel.init({
     comment: "图片",
     defaultValue:[]
   },
+  image:{
+    type: DataTypes.VIRTUAL, // 虚拟字段，
+    allowNull: true,
+    comment: "图片",
+    get(){
+      return this.getDataValue('picture')[0]
+    },
+    set(){
+      throw new Error('不设置该字段')
+    }
+  },
   discount: {
     type: DataTypes.VIRTUAL,
     allowNull: true,
@@ -168,6 +179,7 @@ CateModel.hasMany(GoodsModel, {
   foreignKey: 'cateId',
   sourceKey: 'id',
   constraints: false,
+  as:'goods'
 })
 
 // 商品 与品牌

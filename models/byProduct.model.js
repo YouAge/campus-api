@@ -28,6 +28,17 @@ ByProductModel.init({
     comment: "图片",
     defaultValue: []
   },
+  image:{
+    type: DataTypes.VIRTUAL, // 虚拟字段，
+    allowNull: true,
+    comment: "图片",
+    get(){
+      return this.getDataValue('picture')[0]
+    },
+    set(){
+      throw new Error('不设置该字段')
+    }
+  },
   oldPrice: {
     type: Sequelize.FLOAT(10, 2),
     allowNull: true,

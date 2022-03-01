@@ -1,6 +1,10 @@
 
 const Router = require('koa-router')
 const jwt = require('jsonwebtoken')
+const {updateShopUserInfo} = require("../controller/user.controller.js");
+
+const {evaluate,commentPage} = require("../controller/comment.controller.js");
+const {shopTagGetController} = require("../controller/shop.controller.js");
 const {
   addShopOrderController,
   delShopOrderController,
@@ -24,7 +28,7 @@ const {shopHeadGetController,shopGoodsDetailsController,
 const router = new Router({ prefix: '/api' })
 
 // 需要登入路由
-const authPath = new Set(['/cart', '/address', '/order'])
+const authPath = new Set(['/cart', '/address', '/order','/user-info','/order'])
 router.use(async (ctx,next)=>{
   const path = ctx.request.path
   if (authPath.has(path.replace(/^\/api/, ''))) {
@@ -57,6 +61,9 @@ router.get('/goods-list',shopGoodsPageGetController)
 //首页轮播图
 router.get('/slideshow',shopSlideshowGetController)
 
+//获取商品首页list
+router.get('/tag-list',shopTagGetController)
+
 
 //获取商品详情
 router.get('/goods-details',shopGoodsDetailsController)
@@ -66,6 +73,7 @@ router.get('/goods-details',shopGoodsDetailsController)
 router.post('/login-shop', shopUserLoginController)
 router.post('/register-shop', shopUserRegisterController)
 router.get('/get-user-info', shopUserGetInfoController)
+router.put('/user-info',updateShopUserInfo)
 
 // 获取用户购物地址
 router.post('/address',addUserAddressController)
@@ -88,6 +96,11 @@ router.patch('/order', delShopOrderController)
 
 // 查看所以购买记录
 
+
+
+//评论信息
+router.get('/evaluate',evaluate)
+router.get('/evaluate/page',commentPage)
 
 
 module.exports = router

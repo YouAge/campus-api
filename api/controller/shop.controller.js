@@ -12,36 +12,61 @@ const {CateModel} = require("../../models/cate.model.js");
 const {Op} = require("sequelize");
 
 const schema = {
-  type:'object',
+  type: 'object',
   properties: {
-    cateId: {type: 'number',errorMessage:{type:'必须是数字'}},
-    pageSize: {type: 'number',default: 100,errorMessage:{type:'必须是字符串或者数字',}},
-    pageIndex:{type:'number',default: 1,errorMessage:{type:'是一个数组包裹'}},
-    order: {type:'string',default:'DESC'},
-    keyword:{type:'string'},
+    cateId: {type: 'number', errorMessage: {type: '必须是数字'}},
+    tagId:{type:'number',errorMessage:{type:"必须是数字"},default:null},
+    pageSize: {type: 'number', default: 100, errorMessage: {type: '必须是字符串或者数字',}},
+    pageIndex: {type: 'number', default: 1, errorMessage: {type: '是一个数组包裹'}},
+    order: {type: 'string', default: 'DESC'},
+    keyword: {type: 'string'},
     // 字段排序
-    inventory:{type:'boolean',default:'false'},
-    onlyDiscount:{type:'boolean',default:'false'},
-    sortField:{type:'string', enum: ["publishTime", "orderNum", "price", "evaluateNum"],default:'price'}, //默认最高人气
-    sortMethod:{type:'string',enum:['DESC','ASC',''],default:""}
+    inventory: {type: 'boolean', default: 'false'},
+    onlyDiscount: {type: 'boolean', default: 'false'},
+    sortField: {type: 'string', enum: ["publishTime", "orderNum", "price", "evaluateNum"], default: 'price'}, //默认最高人气
+    sortMethod: {type: 'string', enum: ['DESC', 'ASC', ''], default: ""}
   },
   // required:['cateId']
 }
 
 // 首页菜单栏获取
-async function  shopHeadGetController(ctx,next){
+async function shopHeadGetController(ctx, next) {
   const data = await CateModel.findAll(
-    {where:{superId:0},
-      include:{model:CateModel,as:'children'}}
+    {
+      where: {superId: 0},
+      include: {
+        model: CateModel, as: 'children',
+        include: {
+          model: GoodsModel, as: 'goods',
+          include: [
+            {
+            model: GoodsSkuModel,
+            as: 'skus',
+              // required:true
+            }, {
+            model: CateModel,
+            as: 'cate',
+          }, {
+            model: GoodsTagModel,
+            as: 'tags'
+          }, {
+            model: BrandModel,
+          }
+          ],
+          limit:5, //取5条，按热度来
+          required:true
+        }
+      }
+    }
   )
   ctx.body = backMsg200({data})
 }
 
 //商品分页查询， 多种类查询
-async function shopGoodsPageGetController(ctx, next){
+async function shopGoodsPageGetController(ctx, next) {
   const data = ctx.query
-  ajvValid(data,schema)
-  const {cateId,pageSize,pageIndex} =data
+  ajvValid(data, schema)
+  const {cateId, pageSize, pageIndex} = data
   let where = {}
   // 条件处理
   if (cateId) {
@@ -55,7 +80,7 @@ async function shopGoodsPageGetController(ctx, next){
     ]
   }
 
-  const f = await productService( pageIndex, pageSize,where)
+  const f = await productService(pageIndex, pageSize, where)
   // await GoodsModel.findAndCountAll({
   //   where,
   //       include:{
@@ -91,7 +116,8 @@ async function shopGoodsPageGetController(ctx, next){
 }
 
 
-async function shopSlideshowGetController(ctx, next){}
+async function shopSlideshowGetController(ctx, next) {
+}
 
 
 // 商品详情查询
@@ -147,7 +173,47 @@ async function getGoodsCommitController(ctx, next) {
 }
 
 
+//获取首页商品列表，数据,
+async function shopTagGetController(ctx, next) {
+  // 获取
+  const data = await GoodsTagModel.findAll({
+    where: {
+      isHome: true
+    },
+    include: [
+      {
+        model: CateModel,
+        as: 'cates',
+        include: {model: CateModel, as: 'children'}
+      },
+      {
+        model: GoodsModel,
+        as: 'goods',
+        include: [
+          {
+            model: GoodsSkuModel,
+            as: 'skus'
+          }, {
+            model: CateModel,
+            as: 'cate',
+
+          }, {
+            model: GoodsTagModel,
+            as: 'tags'
+          }, {
+            model: BrandModel,
+          }
+        ],
+      }
+    ]
+  })
+  console.log(data)
+  ctx.body = backMsg200({data})
+}
+
+
 module.exports = {
+  shopTagGetController,
   shopHeadGetController,
   shopSlideshowGetController,
   shopGoodsPageGetController,
