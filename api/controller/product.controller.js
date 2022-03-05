@@ -89,7 +89,7 @@ async function productGetController(ctx, next) {
   ajvValid(data, productSchema)
   const {cateId, pageSize, pageIndex} = data
   const where = {}
-  const f = await productService( pageIndex, pageSize,where)
+  const f = await productService(data, pageIndex, pageSize,where)
   ctx.body = backMsg200({data: f, msg: '获取商品'})
 }
 
@@ -143,6 +143,8 @@ async function productPutController(ctx,next){
     await GoodsModel.update({ cateId:data.cateId,name:data.name,
       desc:data.desc,particulars:data.particulars, picture:data.picture
     },{where:{id:data.id}})
+    const goods = await GoodsModel.findOne({where:{ id:data.id}})
+    goods.setTags(data.tags) // 关联标签
     ctx.body = backMsg200({msg: '更新成功'})
   }
 }

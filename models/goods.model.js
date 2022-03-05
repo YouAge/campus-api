@@ -64,7 +64,7 @@ GoodsModel.init({
     get(){
       console.log(this)
       if (this.skus && this.skus.length > 0) {
-        return this.skus[0].price
+        return this.skus[0].oldPrice
       }
       return 0.0
     },
@@ -116,6 +116,41 @@ GoodsModel.init({
     comment: '状态是否使用'
   },
   //销量， 收藏， 点击率，
+  sales:{
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+    field: "sales",
+    comment: "销量",
+  },
+  browse:{
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+    field: "browse",
+    comment: "浏览量",
+  },
+  newGoods:{
+    type:  DataTypes.VIRTUAL,
+    defaultValue: false,
+    comment: '新品',
+    get(){
+      try {
+        const time = new Date( this.getDataValue('created_at'))
+        const cateTime = new Date(time.setDate( time.getDate() + 30))
+        const stime = new Date()
+        let countdown =  cateTime.getTime() -stime.getTime()
+        if(countdown>0) return parseInt(countdown / 1000)
+        return -1
+      }catch (e){
+        return -1
+      }
+
+    },
+    set(){
+      throw new Error('不设置该字段')
+    }
+  },
 
   isTypeExplain: {
     type: DataTypes.INTEGER,
@@ -133,6 +168,14 @@ GoodsModel.init({
     defaultValue: '',
     comment: '商品详情'
   },
+  partInfo:{
+    type: DataTypes.JSON,
+    allowNull: false,
+    comment: "商品详情",
+    field:'part_info',
+    defaultValue: {},
+  },
+
   created_at: {
     type: Sequelize.DATE,
     allowNull: false,

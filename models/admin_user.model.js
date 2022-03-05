@@ -1,4 +1,5 @@
 
+const bcrypt = require('bcryptjs')
 const moment = require('moment')
 const {Model,Sequelize,DataTypes} = require('sequelize')
 const {sequelize} = require('../utils/db-sequelize.js')

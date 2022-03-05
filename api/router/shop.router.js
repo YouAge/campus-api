@@ -1,6 +1,8 @@
 
 const Router = require('koa-router')
 const jwt = require('jsonwebtoken')
+const {putGoodsController} = require("../controller/shop.controller.js");
+const {shopTagsGoodsController} = require("../controller/shop.controller.js");
 const {updateShopUserInfo} = require("../controller/user.controller.js");
 
 const {evaluate,commentPage} = require("../controller/comment.controller.js");
@@ -63,7 +65,7 @@ router.get('/slideshow',shopSlideshowGetController)
 
 //获取商品首页list
 router.get('/tag-list',shopTagGetController)
-
+router.get('/tagslist',shopTagsGoodsController)
 
 //获取商品详情
 router.get('/goods-details',shopGoodsDetailsController)
@@ -79,14 +81,16 @@ router.put('/user-info',updateShopUserInfo)
 router.post('/address',addUserAddressController)
 router.get('/address',showUserAddressController)
 router.put('/address', updateUserAddressController)
-router.patch('/address', delUserAddressController)
+router.post('/del-address', delUserAddressController)
 
+//更新商品浏览量
+router.put('/goods-browse',putGoodsController)
 
 // ---购物车
 router.post('/cart', addCartShopController)
 router.get('/cart', showCartShopController)
-router.put('/cat', updateCartShopController)
-router.patch('/cat', delCartShopController)
+router.put('/cart', updateCartShopController)
+router.patch('/cart', delCartShopController)
 
 // -- 订单生成
 router.post('/order', addShopOrderController)

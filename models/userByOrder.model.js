@@ -68,9 +68,18 @@ UserByOrderModel.init({
     field: 'pay_late_time',
     allowNull: false,
     comment:'最后截止的时间',
+    validate: {
+      notEmpty: true
+    },
     get() {
       return moment(this.getDataValue('pay_late_time')).format('YYYY-MM-DD HH:mm:ss');
-    }
+    },
+    // set(value){
+    //   const dtim = new Date()
+    //   const payLatestTime = new Date(dtim.setMinutes(dtim.getMinutes() + 30))
+    //   console.log(value)
+    //   this.setDataValue('pay_late_time','2022-12-12 10:22:33')
+    // }
   },
   countdown:{
     type: Sequelize.VIRTUAL, // 虚拟字段，

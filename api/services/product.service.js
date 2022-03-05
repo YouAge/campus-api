@@ -1,3 +1,4 @@
+const {Op} = require("sequelize");
 const {CateModel} = require("../../models/cate.model.js");
 const {GoodsTagModel} = require("../../models/goods_tag.model.js");
 const {ByProductModel} = require("../../models/byProduct.model.js");
@@ -6,10 +7,12 @@ const {GoodsSkuModel} = require("../../models/goods_sku.model.js");
 const {GoodsModel} = require("../../models/goods.model.js");
 
 
-async function productService( pageIndex, pageSize,where ={}, order= [['created_at', 'DESC']]) {
-
+async function productService(data, pageIndex, pageSize,where ={}, order= [['created_at', 'DESC']]) {
+  //先获取分类的所以子分类
+  // const cateids =  await CateModel.findAll({where:{superId:data.cateId},attributes:['id']})
+  // console.log('=======>',cateids)
   return await GoodsModel.findAndCountAll({
-    where,
+    // where,
     include: [{
       model: GoodsSkuModel,
       as: 'skus',
@@ -18,7 +21,6 @@ async function productService( pageIndex, pageSize,where ={}, order= [['created_
       {
         model:GoodsTagModel,
         as:'tags',
-        where:{}
       },
       {
         model:CateModel,
@@ -81,12 +83,55 @@ async function orderPageService(where,data){
     limit:data.pageSize,
     offset:  (data.pageIndex - 1) * data.pageSize,
   })
+}
+
+
+// 商品列表查询
+async function productListService(data,where,order= [['created_at', 'DESC']]){
+  //获取
+  let cateIds = []
+  if(data.cateId){
+    const cateId =  await CateModel.findAll({where:{superId:data.cateId},attributes:['id']})
+    if(cateId){
+      cateIds = cateId.map(f=>f.id)
+      where= {
+        cateId:{
+          [Op.in]:cateIds
+        }
+      }
+    }
+  }
+  console.log(cateIds)
+  return  await GoodsModel.findAndCountAll({
+    where,
+    include: [{
+      model: GoodsSkuModel,
+      as: 'skus',
+      order: [['price'], 'DESC'],
+    },
+      {
+        model:GoodsTagModel,
+        as:'tags',
+      },
+      {
+        model:CateModel,
+        as:'cate',
+      }
+    ],
+    limit: data.pageSize,
+    offset: (data.pageIndex - 1) * data.pageSize,
+    order,
+    distinct:true // 不计算子查询待数据，
+    // subQuery:false //单个好用，多个不好用，不再子查询中分页
+  })
 
 }
+
 
 
 module.exports = {
   productService,
   orderTimeService,
-  orderPageService
+  orderPageService,
+  productListService
 }

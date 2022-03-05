@@ -75,13 +75,12 @@ async function addShopOrderController(ctx, next) {
   const data = ctx.request.body || ctx.request.params || {}
   ajvValid(data, addOrderSchema)
   const orderId = await setOrderId()
-  // 生成订单, // 计算总价格，是否与传过来的价格一直
-
-
   const dtim = new Date()
+  // 生成订单, // 计算总价格，是否与传过来的价格一直
+  const payLateTime = new Date(dtim.setMinutes(dtim.getMinutes() + 30))
   let order = await UserByOrderModel.create({...data, userId, orderId,
-    payLatestTime : new Date(dtim.setMinutes(dtim.getMinutes() + 30))}, {
-    include: {
+    payLateTime},
+  {include: {
       model: ByProductModel,
       as: 'goods'
     }
@@ -93,10 +92,6 @@ async function addShopOrderController(ctx, next) {
 // 删除
 async function delShopOrderController(ctx, next) {
 
-}
-
-// 更新订单状态
-async function updateShopOrderController(ctx, next) {
 }
 
 
@@ -112,6 +107,18 @@ const ordSchema = {
     orderState:{type:"number",default:1}
   }
 }
+// 更新订单状态
+async function updateShopOrderController(ctx, next) {
+  const userId = ctx.state.users.id
+  const data = ctx.request.body || ctx.request.params || {}
+  ajvValid(data, ordSchema)
+  await UserByOrderModel.update({orderState:data.orderState},{where:{orderId:data.orderId,userId}})
+  ctx.body = backMsg200({})
+}
+
+
+
+
 
 //获取所有的订单, 筛选 不同类型的 订单状态
 async function showShopOrderController(ctx, next) {

@@ -1,3 +1,4 @@
+const {productListService} = require("../services/product.service.js");
 const {BrandModel} = require("../../models/brand.model.js");
 const {isNumber} = require("../../utils");
 const {GoodsTagModel} = require("../../models/goods_tag.model.js");
@@ -23,8 +24,8 @@ const schema = {
     // 字段排序
     inventory: {type: 'boolean', default: 'false'},
     onlyDiscount: {type: 'boolean', default: 'false'},
-    sortField: {type: 'string', enum: ["publishTime", "orderNum", "price", "evaluateNum"], default: 'price'}, //默认最高人气
-    sortMethod: {type: 'string', enum: ['DESC', 'ASC', ''], default: ""}
+    sortField: {type: 'string', enum: ["newGoods",'created_at', "sales", "price", "browse"], default: 'created_at'}, //默认最高人气
+    sortMethod: {type: 'string', enum: ['DESC', 'ASC'], default: "DESC"}
   },
   // required:['cateId']
 }
@@ -53,12 +54,14 @@ async function shopHeadGetController(ctx, next) {
             model: BrandModel,
           }
           ],
-          limit:5, //取5条，按热度来
-          required:true
-        }
+          order: [['newGoods'], 'DESC'],
+        },
+        // limit:2, //取5条，按热度来
+        // required:true
       }
     }
   )
+
   ctx.body = backMsg200({data})
 }
 
@@ -68,10 +71,6 @@ async function shopGoodsPageGetController(ctx, next) {
   ajvValid(data, schema)
   const {cateId, pageSize, pageIndex} = data
   let where = {}
-  // 条件处理
-  if (cateId) {
-    where.cateId = cateId
-  }
   if (data.keyword) {
     where[Op.or] = [
       //商品名，商品介绍，商品标签词
@@ -79,8 +78,9 @@ async function shopGoodsPageGetController(ctx, next) {
       {name: {[Op.like]: `%${data.keyword}%`}}
     ]
   }
+ const order = [[data.sortField,data.sortMethod]]
 
-  const f = await productService(pageIndex, pageSize, where)
+  const f = await productListService(data, where,order)
   // await GoodsModel.findAndCountAll({
   //   where,
   //       include:{
@@ -166,6 +166,18 @@ async function shopGoodsDetailsController(ctx, next) {
   ctx.body = backMsg200({data})
 }
 
+async function putGoodsController(ctx,next){
+  const data = ctx.request.body || ctx.request.params  || {}
+  const {goodsId} = data
+  const goods =  await GoodsModel.findOne({where:{id:goodsId}})
+  if(goods){
+    const browse = goods.browse +1
+    await GoodsModel.update({browse},{where:{id:goodsId}})
+  }
+  ctx.body = backMsg200({})
+}
+
+
 // 获取商品 评论信息, 商品id
 async function getGoodsCommitController(ctx, next) {
 
@@ -207,7 +219,37 @@ async function shopTagGetController(ctx, next) {
       }
     ]
   })
+
   console.log(data)
+  ctx.body = backMsg200({data})
+}
+
+// 获取 热销商品， tag下待随机商品
+async function shopTagsGoodsController(ctx,next){
+  const tagId = ctx.query.tagId
+  if(!tagId) return ctx.body = backMsg400({msg:'缺少参数tagid'})
+  const data = await GoodsTagModel.findOne({where:{
+     id:Number(tagId)
+    },
+    include:{
+      // through: {
+      //   where: 'tags_goods'
+      // },
+      model: GoodsModel,
+      as: 'goods',
+      include: [
+        {
+          model: GoodsSkuModel,
+          as: 'skus'
+        }, {
+          model: CateModel,
+          as: 'cate',
+        },
+      ],
+      order:[['browse'],'DESC']
+      // limit:5
+    }
+  })
   ctx.body = backMsg200({data})
 }
 
@@ -218,4 +260,6 @@ module.exports = {
   shopSlideshowGetController,
   shopGoodsPageGetController,
   shopGoodsDetailsController,
+  shopTagsGoodsController,
+  putGoodsController
 }

@@ -92,7 +92,40 @@ async function adminUserInfo(ctx,next){
 }
 
 
+const addAdminSchema = {
+  type:'object',
+  properties: {
+    username: {type: "string"},
+    password: {type: 'string',minLength:3,errorMessage:{minLength:'长度必须大于3',}},
+  },
+  required:['username','password']
+}
+async function addAdminUser(ctx,next){
+  const data = ctx.request.body || ctx.request.params  || {}
+  console.log(data)
+  ajvValid(data,addAdminSchema)
+  const user = await AdminUserModel.findOne({
+    where:{username:data.username},
+  })
+  if(user)return   ctx.body = backMsg400({msg:'用户名以存在'})
+  await AdminUserModel.create(data)
+  ctx.body = backMsg200({msg:'添加成功'})
+}
 
+async function getAdminUser(ctx,next){
+  const data = ctx.query
+  ajvValid(data,schema)
+  const shopUsers =  await AdminUserModel.findAndCountAll({
+    where:{},
+    // limit:data.pageSize,
+    // offset:  (data.pageIndex - 1) * data.pageSize,
+  })
+  ctx.body = backMsg200({data:shopUsers})
+}
+async function delAdminUser(ctx,next){
+  const id = ctx.query.id
+  await AdminUserModel.destroy({where:{id}})
+  ctx.body = backMsg200({})}
 
 
 // -------shop user------
@@ -112,16 +145,28 @@ const loginSchema = {
 async function shopUserLoginController(ctx,next){
   const data = ctx.request.body || ctx.request.params  || {}
   ajvValid(data,loginSchema)
-  const user1 = await GoodUserModel.findOne({
-    where:{email:data.username,status:true},
-  })
-  const user2 = await GoodUserModel.findOne({
-    where:{iphone:data.username,status:true},
-  })
-  const user = user1 || user2
-  if(!user)return   ctx.body = backMsg400({msg:'用户名不存在'})
+  let user = null
   if(!data.isIphone){
+     user = await GoodUserModel.findOne({
+      where:{email:data.username,status:true},
+    })
+    if(!user)return   ctx.body = backMsg400({msg:'用户名不存在'})
     if(!bcrypt.compareSync(data.password,user.password)) return  ctx.body = backMsg400({msg:'账号或密码错误'})
+  }else {
+    user = await GoodUserModel.findOne({
+      where:{iphone:data.username,},
+    })
+    if(!user){
+      await GoodUserModel.create({username:'带修改',iphone:data.username,password:'',status:true})
+      user = await GoodUserModel.findOne({
+        where:{iphone:data.username,status:true},
+      })
+    }else {
+      if(!user.status){
+        return   ctx.body = backMsg400({msg:'用户名已经被限制'})
+      }
+    }
+
   }
   // 生成token
   const token = jwt.sign({id:user.id,email:user.email,username:user.username}, shopSecret, { expiresIn: expTime })
@@ -252,5 +297,8 @@ module.exports ={
   adminUserLogin,
   updateUserPageController,
   adminUserInfo,
-  updateShopUserInfo
+  updateShopUserInfo,
+  addAdminUser,
+  getAdminUser,
+  delAdminUser
 }

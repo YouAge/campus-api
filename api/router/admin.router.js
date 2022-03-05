@@ -1,5 +1,7 @@
 const Router = require('koa-router')
 const jwt = require("jsonwebtoken");
+const {getAdminUser} = require("../controller/user.controller.js");
+const {addAdminUser,delAdminUser} = require("../controller/user.controller.js");
 const {productPutController} = require("../controller/product.controller.js");
 const {delSpecsController} = require("../controller/specs.controller.js");
 const {cateUpdateController} = require("../controller/cate.controller.js");
@@ -40,7 +42,9 @@ router.use(async (ctx,next)=>{
 router.post('/admin-login',adminUserLogin)
 router.get('/get-admin-info',adminUserInfo)
 
-
+router.post('/add-admin',addAdminUser)
+router.get('/admin',getAdminUser)
+router.delete('/admin',delAdminUser)
 // 图片
 router.post('/img-map-keys',imgPostController)
 router.get('/img-map-keys',imgGetController)

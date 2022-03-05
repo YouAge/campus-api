@@ -22,6 +22,10 @@ GoodUserModel.init( {
   password: {
     type:DataTypes.STRING,
     set(val) {
+      if(!val){
+        this.setDataValue("password", null)
+        return
+      }
       // 加密
       const salt = bcrypt.genSaltSync(10);
       // console.log(salt)
@@ -29,7 +33,7 @@ GoodUserModel.init( {
       const psw = bcrypt.hashSync(val, salt);
       this.setDataValue("password", psw);
     },
-    allowNull: false,
+    // allowNull: false,
     comment: '管理员密码'
   },
   email: {

@@ -66,9 +66,9 @@ async function showCartShopController(ctx,next){
 
 // 删除购物车商品,批量 []
 async function delCartShopController(ctx,next){
-  const cartIds = ctx.request.body || ctx.request.params || {}
+  const data = ctx.request.body || ctx.request.params || {}
   const userId = ctx.state.users.id
-  for (let id of cartIds){
+  for (let id of data.cartIds){
     await ShopCartModel.destroy({
       where:{id,userId}
     })
