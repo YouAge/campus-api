@@ -1,8 +1,3 @@
-/**
- *@ github： https://github.com/YouAge
- *@ 文件介绍:
- */
-
 
 const {GoodsTagModel} = require("../../models/goods_tag.model.js");
 const {productService} = require("../services/product.service.js");

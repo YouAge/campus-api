@@ -1,7 +1,3 @@
-/**
- *@ github： https://github.com/YouAge
- *@ 文件介绍:
- */
 
 const  { Sequelize } = require('sequelize')
 const database = require('../config').database

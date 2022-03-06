@@ -15,7 +15,7 @@ const koaError = async (ctx, next)=>{
       }
       ctx.response.status = error.code
     }else {
-      console.log(error.name)
+      // console.log(error.name)
       if(error.name === 'SequelizeUniqueConstraintError'){
         ctx.body = {
           msg: "数据id已存在！",

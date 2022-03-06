@@ -81,10 +81,10 @@ async function adminUserLogin(ctx,next){
 }
 
 async function adminUserInfo(ctx,next){
-  const token = ctx.request.headers.amintoken || ''
+  const token = ctx.request.headers.admintoken || ''
   try {
     const data = jwt.verify(token,adminSecret)
-    const user = await AdminUserModel.findOne({where:{id:data.id},attributes: { exclude: ['password'] }})
+    const user = await AdminUserModel.findOne({where:{id:data.id}}) //,attributes: { exclude: ['password'] }
     ctx.body = backMsg200({data:user,msg:'验证通过'})
   }catch (e) {
     ctx.body = backMsg401({})
@@ -102,7 +102,7 @@ const addAdminSchema = {
 }
 async function addAdminUser(ctx,next){
   const data = ctx.request.body || ctx.request.params  || {}
-  console.log(data)
+  // console.log(data)
   ajvValid(data,addAdminSchema)
   const user = await AdminUserModel.findOne({
     where:{username:data.username},

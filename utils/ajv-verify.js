@@ -22,7 +22,7 @@ const ajvValid = (data,schema)=>{
   const validate = ajv.compile(schema)
   const valid = validate(data)
   if(!valid){
-    console.log(validate)
+    // console.log(validate)
     throw new ParameterException(validate.errors[0].message)
   }
 }

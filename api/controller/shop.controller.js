@@ -111,7 +111,7 @@ async function shopGoodsPageGetController(ctx, next) {
   //   //   model:GoodsModel,
   //   //   order:[['created_at','DESC']],}]
   // })
-  console.log(f)
+  // console.log(f)
   ctx.body = backMsg200({data: f})
 }
 
@@ -220,7 +220,7 @@ async function shopTagGetController(ctx, next) {
     ]
   })
 
-  console.log(data)
+  // console.log(data)
   ctx.body = backMsg200({data})
 }
 

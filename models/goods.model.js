@@ -62,7 +62,7 @@ GoodsModel.init({
     allowNull: true,
     comment: "价格",
     get(){
-      console.log(this)
+      // console.log(this)
       if (this.skus && this.skus.length > 0) {
         return this.skus[0].oldPrice
       }

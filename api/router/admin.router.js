@@ -24,18 +24,23 @@ const router = new Router({prefix: '/api/admin'})
 const {showSpecsController} = require("../controller/specs.controller.js");
 const {specsController} = require("../controller/specs.controller.js");
 //----后台管理----
-
+const authPath = new Set(['/admin/admin-login'])
 router.use(async (ctx,next)=>{
-  // const token = ctx.request.headers.admintoken || ''
-  // let data = null
-  // try {
-  //   data = jwt.verify(token, adminSecret)
-  //   // 挂在登入的用户id
-  // } catch (e) {
-  //   ctx.body = backMsg401({})
-  // }
-  // ctx.state.users = data
-  await next()
+  const path = ctx.request.path
+  if (authPath.has(path.replace(/^\/api/, ''))) {
+    await next()
+  }else {
+    const token = ctx.request.headers.admintoken || ''
+    let data = null
+    try {
+      data = jwt.verify(token, adminSecret)
+      ctx.state.users = data
+      await next()
+      // 挂在登入的用户id
+    } catch (e) {
+      ctx.body = backMsg401({})
+    }
+  }
 })
 
 // 管理员登入

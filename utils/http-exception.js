@@ -1,7 +1,3 @@
-/**
- *@ github： https://github.com/YouAge
- *@ 文件介绍: 异常定义
- */
 
 // const Joi = require('joi')
 

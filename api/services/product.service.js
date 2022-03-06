@@ -67,7 +67,7 @@ async function orderTimeService(orderId, userId) {
   const newTimer = new Date()
   let countdown = payLatestTime.getTime() - newTimer.getTime()
   countdown = countdown > 0 ? parseInt(countdown / 1000) : -1
-  console.log(countdown, newTimer, payLatestTime)
+  // console.log(countdown, newTimer, payLatestTime)
   order.setDataValue('payLatestTime', payLatestTime)
   order.setDataValue('countdown', countdown)
   return order
@@ -101,7 +101,7 @@ async function productListService(data,where,order= [['created_at', 'DESC']]){
       }
     }
   }
-  console.log(cateIds)
+  // console.log(cateIds)
   return  await GoodsModel.findAndCountAll({
     where,
     include: [{

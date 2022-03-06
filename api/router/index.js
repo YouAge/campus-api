@@ -1,8 +1,3 @@
-/**
- *@ github： https://github.com/YouAge
- *@ 文件介绍:
- */
-
 
 const Router = require('koa-router')
 const pathExists = require("path-exists");
