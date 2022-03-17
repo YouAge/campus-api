@@ -24,6 +24,7 @@
     "koa-router": "^10.1.1",
     "koa-static": "^5.0.0",
     "koa2-cors": "^2.0.6",
+    "koa2-swagger-ui": "^5.5.0",
     "moment": "^2.29.1",
     "mysql2": "^2.3.3",
     "nodemon": "^2.0.15",
@@ -31,6 +32,7 @@
     "pg": "^8.7.1",
     "request": "^2.88.2",
     "sequelize": "^7.0.0-alpha.2",
+    "swagger-jsdoc": "^6.1.0",
     "uuid": "^8.3.2"
   }
 }
