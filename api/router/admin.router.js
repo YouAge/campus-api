@@ -265,7 +265,7 @@ router.put('/cate', cateUpdateController)
 // tag 标签
 /**
  * @swagger
- * /api/admin/tags':
+ * /api/admin/tags:
  *   get:
  *     summary: 更新商品标签
  *     description: 更新商品标签
@@ -279,7 +279,7 @@ router.put('/cate', cateUpdateController)
 router.get('/tags', tagGetController)
 /**
  * @swagger
- * /api/admin/tags':
+ * /api/admin/tags:
  *   post:
  *     summary: 更新商品标签
  *     description: 更新商品标签
@@ -293,7 +293,7 @@ router.get('/tags', tagGetController)
 router.post('/tags', tagAddPostController)
 /**
  * @swagger
- * /api/admin/tags':
+ * /api/admin/tags:
  *   delete:
  *     summary: 更新商品标签
  *     description: 更新商品标签
@@ -326,7 +326,7 @@ router.delete('/tags',tagDelController)
 router.post('/product', productPostController)
 /**
  * @swagger
- * /api/admin/product':
+ * /api/admin/product:
  *   get:
  *     summary: 获取商品
  *     description: 获取商品
@@ -342,7 +342,7 @@ router.get('/product', productGetController)
 //更新商品
 /**
  * @swagger
- * /api/admin/product':
+ * /api/admin/product:
  *   put:
  *     summary: 更新商品
  *     description: 更新商品
