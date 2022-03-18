@@ -218,7 +218,7 @@ async function updateShopUserInfo(ctx,next){
   const userId = ctx.state.users.id
   const data = ctx.request.body || ctx.request.params  || {}
   if(data.type === 1){
-    await GoodUserModel.update({password:data.passwrod},{where:{id:userId}})
+    await GoodUserModel.update({password:data.password},{where:{id:userId}})
     ctx.body = backMsg200({msg:'修改密码成功'})
   }else if(data.type ===2 ){
     await GoodUserModel.update({iphone:data.iphone,desc:data.desc,
@@ -257,10 +257,10 @@ async function delUserAddressController(ctx,next){
   const userId = ctx.state.users.id
   const data = ctx.request.body || ctx.request.params  || {}
   if(data.ids && Array.isArray(data.ids)){
-    for (let id of ids){
+    for (let id of data.ids){
       await AddressModel.destroy({where:{id,userId}})
     }
-    ctx.body = backMsg200({msg:"ok"})
+    return  ctx.body = backMsg200({msg:"ok"})
   }
   ctx.body = backMsg400({msg:"参数格式错误"})
 

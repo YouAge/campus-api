@@ -30,7 +30,7 @@ const {shopHeadGetController,shopGoodsDetailsController,
 const router = new Router({ prefix: '/api' })
 
 // 需要登入路由
-const authPath = new Set(['/cart', '/address', '/order','/user-info','/order'])
+const authPath = new Set(['/cart', '/address', '/order','/user-info','/order','/del-address'])
 router.use(async (ctx,next)=>{
   const path = ctx.request.path
   if (authPath.has(path.replace(/^\/api/, ''))) {
