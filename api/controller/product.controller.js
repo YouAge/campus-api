@@ -1,3 +1,4 @@
+const {backMsg400} = require("../../utils/backMsg.js");
 
 const {GoodsTagModel} = require("../../models/goods_tag.model.js");
 const {productService} = require("../services/product.service.js");
@@ -92,17 +93,21 @@ async function productGetController(ctx, next) {
 async function delProductPostController(ctx, next) {
   let goodsIds = ctx.request.body.goodsIds || ctx.request.params.goodsIds || []
   goodsIds = Array.isArray(goodsIds) ? goodsIds : [goodsIds]
-  for (let id of goodsIds) {
-    await GoodsModel.destroy(
-      {
-        where: id, include: [{
-          model: GoodsSkuModel,
-          as: 'skus'
-        }]
-        // ,force:true // 强制删除
-      })
+  try {
+    for (let id of goodsIds) {
+      await GoodsModel.destroy(
+        {
+          where: {
+            id
+            // ,force:true // 强制删除
+          }})
+    }
+    ctx.body = backMsg200({msg: '删除成功'})
+
+  }catch (e) {
+    console.log(e)
+    ctx.body = backMsg400({msg: '删除失败'})
   }
-  ctx.body = backMsg200({msg: '删除成功'})
 
 }
 
@@ -148,5 +153,6 @@ async function productPutController(ctx,next){
 module.exports = {
   productPostController,
   productGetController,
-  productPutController
+  productPutController,
+  delProductPostController
 }

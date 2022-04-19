@@ -1,3 +1,4 @@
+const {GoodUserModel} = require("../../models/good_user.model.js");
 const {Op} = require("sequelize");
 const {CateModel} = require("../../models/cate.model.js");
 const {GoodsTagModel} = require("../../models/goods_tag.model.js");
@@ -29,6 +30,7 @@ async function productService(data, pageIndex, pageSize,where ={}, order= [['cre
     ],
     limit: pageSize,
     offset: (pageIndex - 1) * pageSize,
+    distinct:true,// 不计算子查询待数据，
    order,
     // subQuery:false // 不在子查询中分页
 
@@ -76,12 +78,19 @@ async function orderTimeService(orderId, userId) {
 async function orderPageService(where,data){
 
   return  await UserByOrderModel.findAndCountAll({
-    where, include: {
+    where, include: [{
       model: ByProductModel,
-      as: 'goods'
-    },
+      as: 'goods',
+     },
+      {
+        model:GoodUserModel,
+        as:'user'
+      }
+    ],
+    order:[['created_at','DESC']],
     limit:data.pageSize,
     offset:  (data.pageIndex - 1) * data.pageSize,
+    distinct:true
   })
 }
 

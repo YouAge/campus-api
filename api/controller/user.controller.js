@@ -150,14 +150,19 @@ async function shopUserLoginController(ctx,next){
      user = await GoodUserModel.findOne({
       where:{email:data.username,status:true},
     })
+    if(!user){
+      user = await GoodUserModel.findOne({
+        where:{iphone:data.username,status:true},
+      })
+    }
     if(!user)return   ctx.body = backMsg400({msg:'用户名不存在'})
     if(!bcrypt.compareSync(data.password,user.password)) return  ctx.body = backMsg400({msg:'账号或密码错误'})
   }else {
     user = await GoodUserModel.findOne({
-      where:{iphone:data.username,},
+      where:{iphone:data.username},
     })
     if(!user){
-      await GoodUserModel.create({username:'带修改',iphone:data.username,password:'',status:true})
+      await GoodUserModel.create({username:'未命名',iphone:data.username,password:'',status:true})
       user = await GoodUserModel.findOne({
         where:{iphone:data.username,status:true},
       })

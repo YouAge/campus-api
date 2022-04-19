@@ -1,6 +1,7 @@
 
 const Router = require('koa-router')
 const jwt = require('jsonwebtoken')
+const {getCollect} = require("../controller/comment.controller.js");
 const {putGoodsController} = require("../controller/shop.controller.js");
 const {shopTagsGoodsController} = require("../controller/shop.controller.js");
 const {updateShopUserInfo} = require("../controller/user.controller.js");
@@ -466,5 +467,8 @@ router.get('/evaluate',evaluate)
  */
 router.get('/evaluate/page',commentPage)
 
+
+//
+router.get('/collect',getCollect)
 
 module.exports = router

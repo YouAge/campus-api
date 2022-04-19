@@ -1,5 +1,6 @@
 const {ByProductModel} = require("./byProduct.model.js");
 const moment = require('moment')
+const {GoodUserModel} = require("./good_user.model.js");
 const {Sequelize} = require("sequelize");
 const {Model} = require("sequelize");
 const {sequelize} = require('../utils/db-sequelize.js')
@@ -136,6 +137,19 @@ ByProductModel.belongsTo(UserByOrderModel, {
   constraints: false,
   as: 'order'
 })
+
+
+
+// UserByOrderModel.belongsTo(GoodUserModel, {
+//   foreignKey: 'userId',
+//   targetKey: 'id',
+//   constraints: false
+// })
+// GoodUserModel.hasMany(UserByOrderModel, {
+//   foreignKey: 'userId',
+//   sourceKey: 'id',
+//   constraints: false,
+// })
 
 module.exports = {
   UserByOrderModel,

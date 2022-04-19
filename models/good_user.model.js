@@ -61,6 +61,13 @@ GoodUserModel.init( {
     type: DataTypes.TEXT,
     defaultValue: '',
     // allowNull: true
+  },
+  created_at: {
+    type: Sequelize.DATE,
+    allowNull: false,
+    get() {
+      return moment(this.getDataValue('created_at')).format('YYYY-MM-DD');
+    }
   }
 }, {
   sequelize,
@@ -92,9 +99,14 @@ GoodUserModel.hasMany(ShopCartModel,{
 GoodUserModel.hasMany(UserByOrderModel, {
   foreignKey: 'userId',
   sourceKey: 'id',
-  as: 'byCarts'
+  as: 'ordes'
 })
-
+UserByOrderModel.belongsTo(GoodUserModel, {
+  foreignKey: 'userId',
+  targetKey: 'id',
+  constraints: false,
+  as: 'user'
+})
 
 module.exports = {
   GoodUserModel

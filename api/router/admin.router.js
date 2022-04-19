@@ -1,5 +1,7 @@
 const Router = require('koa-router')
 const jwt = require("jsonwebtoken");
+const {delProductPostController} = require("../controller/product.controller.js");
+const {putAdminOrderController} = require("../controller/shopOrders.controller.js");
 const {getAdminUser} = require("../controller/user.controller.js");
 const {addAdminUser,delAdminUser} = require("../controller/user.controller.js");
 const {productPutController} = require("../controller/product.controller.js");
@@ -354,8 +356,20 @@ router.get('/product', productGetController)
  *         description: 成功获取
  */
 router.put('/product',productPutController)
-
-
+/**
+ * @swagger
+ * /api/admin/product:
+ *   patch:
+ *     summary: 删除商品
+ *     description: 删除商品
+ *     tags:
+ *       - 管理员后台Api
+ *     parameters:
+ *     responses:
+ *       200:
+ *         description: 成功获取
+ */
+router.patch('/product',delProductPostController)
 
 // 用户
 /**
@@ -401,5 +415,19 @@ router.post('/shop-user',updateUserPageController)
  *         description: 成功获取
  */
 router.get('/order',showAdminOrderController)
+/**
+ * @swagger
+ * /api/admin/order:
+ *   put:
+ *     summary: 更新订单发货状态
+ *     description: 更新订单发货状态
+ *     tags:
+ *       - 管理员后台Api
+ *     parameters:
+ *     responses:
+ *       200:
+ *         description: 成功获取
+ */
+router.put('/order',putAdminOrderController)
 
 module.exports = router

@@ -32,37 +32,73 @@ const schema = {
 
 // 首页菜单栏获取
 async function shopHeadGetController(ctx, next) {
-  const data = await CateModel.findAll(
+ const cateList  = await CateModel.findAll(
     {
       where: {superId: 0},
       include: {
         model: CateModel, as: 'children',
-        include: {
-          model: GoodsModel, as: 'goods',
-          include: [
-            {
-            model: GoodsSkuModel,
-            as: 'skus',
-              // required:true
-            }, {
-            model: CateModel,
-            as: 'cate',
-          }, {
-            model: GoodsTagModel,
-            as: 'tags'
-          }, {
-            model: BrandModel,
-          }
-          ],
-          order: [['newGoods'], 'DESC'],
-        },
+        // include: {
+        //   model: GoodsModel, as: 'goods',
+        //   include: [
+        //     {
+        //     model: GoodsSkuModel,
+        //     as: 'skus',
+        //       // required:true
+        //     }, {
+        //     model: CateModel,
+        //     as: 'cate',
+        //   }, {
+        //     model: GoodsTagModel,
+        //     as: 'tags'
+        //   }, {
+        //     model: BrandModel,
+        //   }
+        //   ],
+        //   order: [['newGoods'], 'DESC'],
+        // },
         // limit:2, //取5条，按热度来
         // required:true
       }
     }
   )
+  // let cateIds = []
+  // // 获取 标签下所有的
+  for (let cate of cateList){
+    const cateIds = cate.children.map(item=>item.id)
+    let goods = []
+    if(cateIds.length>0){
+      goods = await GoodsModel.findAll({
+        where:{
+          cateId:{
+            [Op.in]:cateIds
+          }
+        },
+        include: [{
+          model: GoodsSkuModel,
+          as: 'skus',
+          order: [['price'], 'DESC'],
+        },
+          {
+            model:GoodsTagModel,
+            as:'tags',
+          },
+          {
+            model:CateModel,
+            as:'cate',
+          }
+        ],
+        // limit: 9,
+        // order: [['newGoods'], 'DESC'],
+        // distinct:true // 不计算子查询待数据，
+      })
+    }
+    cate.setDataValue('goods',goods.splice(0,9))
+  }
 
-  ctx.body = backMsg200({data})
+
+
+
+  ctx.body = backMsg200({data:cateList})
 }
 
 //商品分页查询， 多种类查询

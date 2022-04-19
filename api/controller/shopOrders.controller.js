@@ -78,6 +78,7 @@ async function addShopOrderController(ctx, next) {
   const dtim = new Date()
   // 生成订单, // 计算总价格，是否与传过来的价格一直
   const payLateTime = new Date(dtim.setMinutes(dtim.getMinutes() + 30))
+  console.log(orderId)
   let order = await UserByOrderModel.create({...data, userId, orderId,
     payLateTime},
   {include: {
@@ -89,10 +90,6 @@ async function addShopOrderController(ctx, next) {
 }
 
 
-// 删除
-async function delShopOrderController(ctx, next) {
-
-}
 
 
 
@@ -117,6 +114,14 @@ async function updateShopOrderController(ctx, next) {
 }
 
 
+// 删除
+async function delShopOrderController(ctx, next) {
+  const userId = ctx.state.users.id
+  const data = ctx.request.body || ctx.request.params || {}
+  ajvValid(data, ordSchema)
+  await UserByOrderModel.destroy({where:{orderId:data.orderId,userId}})
+  ctx.body = backMsg200({})
+}
 
 
 
@@ -144,13 +149,23 @@ async function showAdminOrderController(ctx,next){
   if(data.orderState !==0){
     where.orderState = data.orderState
   }
-  ctx.body = backMsg200({data:await orderPageService(where,data)})
+  const item = await orderPageService(where,data)
+  ctx.body = backMsg200({data:item})
 }
+
+async function putAdminOrderController(ctx,next){
+  const data = ctx.request.body || ctx.request.params || {}
+  ajvValid(data, ordSchema)
+  await UserByOrderModel.update({orderState:data.orderState},{where:{orderId:data.orderId}})
+  ctx.body = backMsg200({})
+}
+
 
 module.exports = {
   addShopOrderController,
   delShopOrderController,
   updateShopOrderController,
   showShopOrderController,
-  showAdminOrderController
+  showAdminOrderController,
+  putAdminOrderController
 }
